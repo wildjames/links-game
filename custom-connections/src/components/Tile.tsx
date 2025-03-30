@@ -12,7 +12,7 @@ const Tile = ({ word, selected, onClick }: TileProps) => {
       className={`tile ${selected ? 'selected' : ''}`}
       onClick={onClick}
     >
-      {word}
+      <p className='tile-text'>{word}</p>
     </div>
   )
 }

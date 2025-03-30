@@ -10,6 +10,7 @@
   cursor: pointer;
   user-select: none;
   transition: background-color 0.3s ease;
+  text-transform: capitalize;
 }
 
 .tile.selected {
