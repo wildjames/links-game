@@ -7,7 +7,11 @@ import '@styles/Game.scss'
 const Game = () => {
   const rows = 4
   const cols = 4
+  const maxSelections = 4
 
+  // track selected tiles, using a unique id for each tile.
+  const [selectedTiles, setSelectedTiles] = useState<string[]>([])
+  // track words, initialized as an empty array.
   const [words, setWords] = useState<string[]>([])
 
   // On mount, parse the query string to update words.
@@ -21,10 +25,7 @@ const Game = () => {
     }
   }, [])
 
-  // State to track selected tiles, using a unique id for each tile.
-  const [selectedTiles, setSelectedTiles] = useState<string[]>([])
-
-  // Toggle tile selection. Allow deselection and limit selection to 4.
+  // Toggle tile selection. Allow deselection and limit selection
   const handleTileClick = (id: string) => {
     setSelectedTiles((prevSelected) => {
       if (prevSelected.includes(id)) {
@@ -32,7 +33,7 @@ const Game = () => {
         return prevSelected.filter(tileId => tileId !== id)
       } else {
         // If already 4 tiles are selected, ignore additional selections.
-        if (prevSelected.length >= 4) {
+        if (prevSelected.length >= maxSelections) {
           return prevSelected
         }
         return [...prevSelected, id]
@@ -41,8 +42,6 @@ const Game = () => {
   }
 
   // Create a grid of tile objects.
-  // Each tile's word is taken from the words array based on its index,
-  // or left blank if the array does not provide enough words.
   const grid = Array.from({ length: rows }, (_, rowIndex) =>
     Array.from({ length: cols }, (_, colIndex) => {
       const index = rowIndex * cols + colIndex
