@@ -1,21 +1,16 @@
-import { useState } from 'react'
 import '@styles/Tile.scss'
 
 export interface TileProps {
-    word: String,
+    word: string
+    selected: boolean
+    onClick: () => void
 }
 
-const Tile = ({ word }: TileProps) => {
-  const [selected, setSelected] = useState(false)
-
-  const handleClick = () => {
-    setSelected(!selected)
-  }
-
+const Tile = ({ word, selected, onClick }: TileProps) => {
   return (
     <div
       className={`tile ${selected ? 'selected' : ''}`}
-      onClick={handleClick}
+      onClick={onClick}
     >
       {word}
     </div>
