@@ -9,8 +9,9 @@ import { Snackbar, SnackbarCloseReason } from '@mui/material'
 import '@styles/Creator.scss'
 import Grid, { GridTile } from '@components/Grid'
 
-import { validateWord, shuffle } from '@utils/utils'
+import { validateWord } from '@utils/utils'
 import { WordCategory, GameState } from './Game'
+import GroupedButtons from '@components/GroupedButtons'
 
 
 const CreatorPage = () => {
@@ -45,6 +46,7 @@ const CreatorPage = () => {
         }
 
         // Create a grid of tile objects.
+        // TODO: Words should be a 2D array so that adding a column causes an empty column to be added, rather than shifting the words over.
         const newGrid = Array.from({ length: rows }, (_, rowIndex) =>
             Array.from({ length: columns }, (_, colIndex) => {
                 const index = rowIndex * columns + colIndex
@@ -77,7 +79,6 @@ const CreatorPage = () => {
         const parsedWords = parsedData.words
             .map(word => decodeURIComponent(word.trim()))
             .filter(word => validateWord(word))
-        shuffle(parsedWords)
 
         // Set the states once we know all is well
         setWords(parsedWords)
@@ -85,8 +86,13 @@ const CreatorPage = () => {
 
         setRows(parsedData.rows)
         setColumns(parsedData.columns)
-        setCategorySize(parsedData.categorySize)
+        // Since we're editing, each row will be designated as a category.
+        setCategorySize(parsedData.columns)
     }, [searchParams])
+
+    useEffect(() => {
+        setColumns(categorySize)
+    }, [categorySize])
 
     // When a tile is clicked, toggle it into (or out of) edit mode.
     const handleTileClick = (tile: GridTile) => {
@@ -116,7 +122,7 @@ const CreatorPage = () => {
         // FIXME: Re-enable this when the creator is more functional
         // checkGameDefinition(parsedData)
 
-        // Flatten grid words, trimming and encoding each.
+        // Flatten grid words, trimming and encoding each
         const words = grid
             .flat()
             .map(tile => encodeURIComponent(tile.word.trim()))
@@ -148,6 +154,25 @@ const CreatorPage = () => {
     return (
         <div className="creator-page">
             <h1>links game creator</h1>
+
+            <div className="controls">
+                <GroupedButtons
+                    counter={rows}
+                    setCounter={setRows}
+                    min={2}
+                    max={10}
+                    label="Rows"
+                />
+
+                <GroupedButtons
+                    counter={categorySize}
+                    setCounter={setCategorySize}
+                    min={2}
+                    max={10}
+                    label="Category Size"
+                />
+            </div>
+
             <Grid
                 grid={grid}
                 handleTileClick={handleTileClick}
@@ -155,13 +180,15 @@ const CreatorPage = () => {
                 onTileTextChange={handleTileTextChange}
             />
 
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={generateGameDefinition}
-            >
-                Generate Game Definition
-            </Button>
+            <div className="controls">
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={generateGameDefinition}
+                >
+                    Generate Game Definition
+                </Button>
+            </div>
 
             <Snackbar
                 open={open}
