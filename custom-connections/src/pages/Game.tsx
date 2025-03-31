@@ -73,6 +73,20 @@ const Game = () => {
         })
     }
 
+    const handleSubmit = () => {
+        console.log('Selected tiles:', selectedTiles)
+        // Find a category where all selected words exist.
+        const matchingCategory = categories.find(category =>
+            selectedTiles.every(word => category.wordArray.includes(word))
+        );
+
+        if (matchingCategory) {
+            console.log(`Correct! category: ${matchingCategory.categoryName}`);
+        } else {
+            console.log('Incorrect.');
+        }
+    }
+
     // Create a grid of tile objects.
     const grid = Array.from({ length: rows }, (_, rowIndex) =>
         Array.from({ length: cols }, (_, colIndex) => {
@@ -109,7 +123,8 @@ const Game = () => {
             <Button
                 variant="contained"
                 color="primary"
-                onClick={() => console.log('Selected Tiles:', selectedTiles)}
+                onClick={handleSubmit}
+                className="submit-button"
                 disabled={selectedTiles.length !== 4}
             >
                 Submit
