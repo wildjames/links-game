@@ -12,7 +12,7 @@ import Grid, { GridTile } from '@components/Grid'
 import GroupedButtons from '@components/GroupedButtons'
 
 import { checkGameDefinition, validateWord } from '@utils/utils'
-import { WordCategory, GameState } from '@pages/Game'
+import { WordCategory, GameState } from '@utils/commonTypes'
 
 const MAX_ROWS = 10
 const MAX_COLUMNS = 10

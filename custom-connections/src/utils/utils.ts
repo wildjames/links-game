@@ -1,4 +1,4 @@
-import { GameState, WordCategory } from "@pages/Game";
+import { WordCategory, GameState } from '@utils/commonTypes'
 
 // TODO: Profanity checking? Stuff like that?
 export const validateWord = (word: string): boolean => {

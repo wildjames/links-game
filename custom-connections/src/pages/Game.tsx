@@ -10,19 +10,7 @@ import Grid from '@components/Grid'
 import '@styles/Game.scss'
 
 import { checkGameDefinition, shuffle, validateWord } from '@utils/utils'
-
-export interface WordCategory {
-    wordArray: string[]
-    categoryName: string
-}
-
-export interface GameState {
-    words: string[]
-    categories: WordCategory[]
-    rows: number
-    columns: number
-    categorySize: number
-}
+import { WordCategory, GameState } from '@utils/commonTypes'
 
 const Game = () => {
     const [rows, setRows] = useState(4)
