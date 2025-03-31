@@ -47,8 +47,9 @@ const Game = () => {
         // This will throw an error if the game definition is invalid.
         checkGameDefinition(parsedData)
 
-        const parsedWords = parsedData.words
-            .map(word => decodeURIComponent(word.trim()))
+        const parsedWords = parsedData.categories
+            .flatMap(category => category.wordArray)
+            .map(word => word.trim())
             .filter(word => validateWord(word))
         shuffle(parsedWords)
 

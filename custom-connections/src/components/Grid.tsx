@@ -37,6 +37,7 @@ const Grid = ({
                                 type="text"
                                 value={tile.word}
                                 onChange={(e) => onTileTextChange(tile.id, e.target.value)}
+                                placeholder="Enter word"
                                 onBlur={() => handleTileClick(tile)}
                                 autoFocus
                                 onKeyDown={(e) => {

@@ -4,7 +4,6 @@ export interface WordCategory {
 }
 
 export interface GameState {
-    words: string[]
     categories: WordCategory[]
     rows: number
     columns: number

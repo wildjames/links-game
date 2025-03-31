@@ -67,7 +67,8 @@ const CreatorPage = () => {
         // This will throw an error if the game definition is invalid.
         checkGameDefinition(parsedData)
 
-        const parsedWords = parsedData.words
+        const parsedWords = parsedData.categories
+            .flatMap(category => category.wordArray)
             .map(word => decodeURIComponent(word.trim()))
             .filter(word => validateWord(word))
 
@@ -98,13 +99,14 @@ const CreatorPage = () => {
         setColumns(categorySize)
     }, [categorySize])
 
-    const createCategories = () => {
+    useEffect(() => {
         const newCategories = Array.from({ length: rows }, (_, i) => ({
             categoryName: `Category ${i + 1}`,
             wordArray: words[i].slice(0, categorySize)
         }))
         setCategories(newCategories)
-    }
+        console.debug('Categories:', newCategories)
+    }, [words, rows, categorySize])
 
     // When a tile is clicked, toggle its edit mode.
     const handleTileClick = (tile: GridTile) => {
@@ -117,6 +119,7 @@ const CreatorPage = () => {
 
     // Update the text for a tile by mapping its full-grid indices.
     const handleTileTextChange = (tileId: string, newText: string) => {
+        console.debug
         const [r, c] = tileId.split('-').map(Number)
         setWords(prevWords =>
             prevWords.map((row, rowIndex) =>
@@ -125,20 +128,25 @@ const CreatorPage = () => {
                 )
             )
         )
-        createCategories()
     }
 
     // Generate a game definition string using only the defined window.
     const generateGameDefinition = () => {
-        // Flatten the words from the displayed grid region.
-        const flatWords = Array.from({ length: rows }, (_, i) =>
-            Array.from({ length: columns }, (_, j) =>
-                encodeURIComponent(words[i][j].trim())
-            )
-        ).flat()
+        try {
+            checkGameDefinition({
+                categories,
+                rows,
+                columns,
+                categorySize
+            })
+        }
+        catch (error) {
+            console.error('Invalid game definition:', error)
+            alert('Invalid game definition. Please check your input.')
+            return
+        }
 
         const gameDefinitionObj: GameState = {
-            words: flatWords,
             categories,
             rows,
             columns,
