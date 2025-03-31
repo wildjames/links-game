@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Buffer } from 'buffer'
 
 import Button from '@mui/material/Button'
@@ -36,14 +37,14 @@ const Game = () => {
 
     // track selected tiles, using a unique id for each tile.
     const [selectedTiles, setSelectedTiles] = useState<string[]>([])
-
     const [validGame, setValidGame] = useState(false)
+
+    const [searchParams] = useSearchParams()
 
 
     // On mount, parse the query string to update the game definition.
     useEffect(() => {
         setValidGame(false)
-        const searchParams = new URLSearchParams(window.location.search)
 
         const payload = searchParams.get('data')
         if (!payload) {
@@ -73,7 +74,7 @@ const Game = () => {
         setMaxSelections(parsedData.categorySize)
 
         setValidGame(true)
-    }, [window.location.search])
+    }, [searchParams])
 
     // Toggle tile selection. Allow deselection and limit selection
     const handleTileClick = (tile: GridTile) => {
@@ -99,7 +100,7 @@ const Game = () => {
         // Find a category where all selected words exist.
         const matchingCategory = categories.find(category =>
             selectedTiles.every(word => category.wordArray.includes(word))
-        );
+        )
 
         if (matchingCategory) {
             console.debug(`Correct! category: ${matchingCategory.categoryName}`)
@@ -107,7 +108,7 @@ const Game = () => {
             // TODO: Handle correct submission
             setSelectedTiles([]) // Reset selected tiles after submission
         } else {
-            console.debug('Incorrect.');
+            console.debug('Incorrect.')
 
             // TODO: Handle incorrect submission. Some kind of animation for feedback
             setSelectedTiles([])
@@ -126,7 +127,7 @@ const Game = () => {
                 const index = rowIndex * cols + colIndex
                 return {
                     id: `${rowIndex}-${colIndex}`,
-                    word: words[index] || '',
+                    word: words[index] || `${rowIndex}-${colIndex}`,
                 }
             })
         )
