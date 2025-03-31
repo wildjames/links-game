@@ -76,18 +76,20 @@ const Game = () => {
 
     // Toggle tile selection. Allow deselection and limit selection
     const handleTileClick = (tile: GridTile) => {
-        const { id } = tile
-
+        console.debug('Tile clicked:', tile)
         setSelectedTiles((prevSelected) => {
-            if (prevSelected.includes(id)) {
+            if (prevSelected.includes(tile.id)) {
                 // If the tile is already selected, deselect it.
-                return prevSelected.filter(tileId => tileId !== id)
+                console.debug("Tile deselected:", tile.id)
+                return prevSelected.filter(tileId => tileId !== tile.id)
             } else {
                 // If already 4 tiles are selected, ignore additional selections.
                 if (prevSelected.length >= maxSelections) {
+                    console.debug("Max selections reached, ignoring additional selections.")
                     return prevSelected
                 }
-                return [...prevSelected, id]
+                console.debug("Tile selected:", tile.id)
+                return [...prevSelected, tile.word]
             }
         })
     }
