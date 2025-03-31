@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { Buffer } from 'buffer'
+
 import Button from '@mui/material/Button'
 
 import Tile from '@components/Tile'
@@ -6,56 +8,89 @@ import '@styles/Game.scss'
 
 import { checkCategoryContainsWords, shuffle, validateWord } from '@utils/utils'
 
+interface GridTile {
+    id: string
+    word: string
+}
+
 interface WordCategory {
     wordArray: string[]
     categoryName: string
 }
 
+interface GameState {
+    words: string[]
+    categories: WordCategory[]
+    rows: number
+    columns: number
+    categorySize: number
+}
+
+
 const Game = () => {
-    const rows = 4
-    const cols = 4
-    const maxSelections = 4
+    const [rows, setRows] = useState(4)
+    const [cols, setCols] = useState(4)
+    const [maxSelections, setMaxSelections] = useState(4)
+
+    const [words, setWords] = useState<string[]>([])
+    const [categories, setCategories] = useState<WordCategory[]>([])
+
+    // The grid is a 2D array of objects, each with an id and a word.
+    const [grid, setGrid] = useState<GridTile[][]>([])
 
     // track selected tiles, using a unique id for each tile.
     const [selectedTiles, setSelectedTiles] = useState<string[]>([])
-    // track words, initialized as an empty array.
-    const [words, setWords] = useState<string[]>([])
-    // track work categories
-    const [categories, setCategories] = useState<WordCategory[]>([])
 
-    // On mount, parse the query string to update words.
+    const [validGame, setValidGame] = useState(false)
+
+
+    // On mount, parse the query string to update the game definition.
     useEffect(() => {
+        setValidGame(false)
         const searchParams = new URLSearchParams(window.location.search)
-        const wordsParam = searchParams.get('words')
-        let parsedWords: string[] = []
-        if (wordsParam) {
-            // words are provided as comma-separated values.
-            parsedWords = wordsParam
-                .split(',')
-                .map(word => decodeURIComponent(word.trim()))
-                .filter(word => validateWord(word))
 
-            // TODO: Check all words are unique
-
-            shuffle(parsedWords)
-            setWords(parsedWords)
+        const payload = searchParams.get('data')
+        if (!payload) {
+            console.error('No data found in the URL')
+            return
         }
 
-        const categoriesParam = searchParams.get('categories')
-        if (categoriesParam) {
-            // categories are provided as URL encoded JSON string.
-            const parsedCategories = JSON.parse(decodeURIComponent(categoriesParam))
-            const validCategories = parsedCategories
-                .filter((category: WordCategory) => {
-                    return category.wordArray.every((word: string) => validateWord(word))
-                })
-                .filter((category: WordCategory) => checkCategoryContainsWords(category.wordArray, parsedWords))
-            // TODO: Ensure each category has a unique name, and that categories have no overlapping words.
-            // TODO: Check we have the right number of categories.
+        const data = Buffer.from(payload, "base64").toString('utf-8')
+        const parsedData: GameState = JSON.parse(data)
+        console.debug('Parsed data:', parsedData)
 
-            setCategories(validCategories)
+        const parsedWords = parsedData.words
+            .map(word => decodeURIComponent(word.trim()))
+            .filter(word => validateWord(word))
+
+        // TODO: Check all words are unique
+
+        shuffle(parsedWords)
+
+        // categories are provided as URL encoded JSON string.
+        const validCategories = parsedData.categories
+            .filter((category: WordCategory) => {
+                return category.wordArray.every((word: string) => validateWord(word))
+            })
+            .filter((category: WordCategory) => checkCategoryContainsWords(category.wordArray, parsedWords))
+
+        // TODO: Ensure each category has a unique name, and that categories have no overlapping words.
+        // TCheck we have the right number of categories.
+        if (validCategories.length !== cols && validCategories.length !== rows) {
+            console.error('The wrong number of categories were provided.')
+            return
         }
-    }, [])
+
+        // Set the states once we know all is well
+        setWords(parsedWords)
+        setCategories(validCategories)
+
+        setRows(parsedData.rows)
+        setCols(parsedData.columns)
+        setMaxSelections(parsedData.categorySize)
+
+        setValidGame(true)
+    }, [window.location.search])
 
     // Toggle tile selection. Allow deselection and limit selection
     const handleTileClick = (id: string) => {
@@ -74,33 +109,48 @@ const Game = () => {
     }
 
     const handleSubmit = () => {
-        console.log('Selected tiles:', selectedTiles)
+        console.debug('Selected tiles:', selectedTiles)
         // Find a category where all selected words exist.
         const matchingCategory = categories.find(category =>
             selectedTiles.every(word => category.wordArray.includes(word))
         );
 
         if (matchingCategory) {
-            console.log(`Correct! category: ${matchingCategory.categoryName}`);
+            console.debug(`Correct! category: ${matchingCategory.categoryName}`)
+
+            // TODO: Handle correct submission
+            setSelectedTiles([]) // Reset selected tiles after submission
         } else {
-            console.log('Incorrect.');
+            console.debug('Incorrect.');
+
+            // TODO: Handle incorrect submission. Some kind of animation for feedback
+            setSelectedTiles([])
         }
     }
 
-    // Create a grid of tile objects.
-    const grid = Array.from({ length: rows }, (_, rowIndex) =>
-        Array.from({ length: cols }, (_, colIndex) => {
-            const index = rowIndex * cols + colIndex
-            return {
-                id: `${rowIndex}-${colIndex}`,
-                word: words[index] || '',
-            }
-        })
-    )
+    useEffect(() => {
+        // Only update if we have everything we need.
+        if (!rows || !cols || !words.length) {
+            return
+        }
+
+        // Create a grid of tile objects.
+        const newGrid = Array.from({ length: rows }, (_, rowIndex) =>
+            Array.from({ length: cols }, (_, colIndex) => {
+                const index = rowIndex * cols + colIndex
+                return {
+                    id: `${rowIndex}-${colIndex}`,
+                    word: words[index] || '',
+                }
+            })
+        )
+
+        setGrid(newGrid)
+    }, [words, rows, cols])
 
     // When there are too many words, render an error string.
-    if (words.length !== rows * cols) {
-        return <div>Error: too many words!</div>
+    if (!validGame) {
+        return <div>Error: bad game configuration!</div>
     }
 
     return (

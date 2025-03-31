@@ -1,0 +1,63 @@
+{
+    "categories": [
+        {
+            "categoryName": "test category A",
+            "wordArray": [
+                "foo",
+                "bar",
+                "spam",
+                "eggs"
+            ]
+        },
+        {
+            "categoryName": "test category B",
+            "wordArray": [
+                "bottle",
+                "desk",
+                "wallet",
+                "laptop"
+            ]
+        },
+        {
+            "categoryName": "test category C",
+            "wordArray": [
+                "phone",
+                "mouse",
+                "screen",
+                "python"
+            ]
+        },
+        {
+            "categoryName": "test category D",
+            "wordArray": [
+                "rabbit",
+                "monty",
+                "goo",
+                "gaga"
+            ]
+        }
+    ],
+    "words": [
+        "foo",
+        "bar",
+        "spam",
+        "eggs",
+        "bottle",
+        "desk",
+        "wallet",
+        "laptop",
+        "phone",
+        "mouse",
+        "screen",
+        "python",
+        "rabbit",
+        "monty",
+        "goo",
+        "gaga"
+    ],
+    "rows": 4,
+    "columns": 4,
+    "categorySize": 4
+}
+
+eyJjYXRlZ29yaWVzIjpbeyJjYXRlZ29yeU5hbWUiOiJ0ZXN0IGNhdGVnb3J5IEEiLCJ3b3JkQXJyYXkiOlsiZm9vIiwiYmFyIiwic3BhbSIsImVnZ3MiXX0seyJjYXRlZ29yeU5hbWUiOiJ0ZXN0IGNhdGVnb3J5IEIiLCJ3b3JkQXJyYXkiOlsiYm90dGxlIiwiZGVzayIsIndhbGxldCIsImxhcHRvcCJdfSx7ImNhdGVnb3J5TmFtZSI6InRlc3QgY2F0ZWdvcnkgQyIsIndvcmRBcnJheSI6WyJwaG9uZSIsIm1vdXNlIiwic2NyZWVuIiwicHl0aG9uIl19LHsiY2F0ZWdvcnlOYW1lIjoidGVzdCBjYXRlZ29yeSBEIiwid29yZEFycmF5IjpbInJhYmJpdCIsIm1vbnR5IiwiZ29vIiwiZ2FnYSJdfV0sIndvcmRzIjpbImZvbyIsImJhciIsInNwYW0iLCJlZ2dzIiwiYm90dGxlIiwiZGVzayIsIndhbGxldCIsImxhcHRvcCIsInBob25lIiwibW91c2UiLCJzY3JlZW4iLCJweXRob24iLCJyYWJiaXQiLCJtb250eSIsImdvbyIsImdhZ2EiXSwicm93cyI6NCwiY29sdW1ucyI6NCwiY2F0ZWdvcnlTaXplIjo0fQ==
