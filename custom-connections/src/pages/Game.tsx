@@ -3,29 +3,25 @@ import { Buffer } from 'buffer'
 
 import Button from '@mui/material/Button'
 
-import Tile from '@components/Tile'
+import { GridTile } from '@components/Grid'
+import Grid from '@components/Grid'
+
 import '@styles/Game.scss'
 
-import { checkCategoryContainsWords, shuffle, validateWord } from '@utils/utils'
+import { checkGameDefinition, shuffle, validateWord } from '@utils/utils'
 
-interface GridTile {
-    id: string
-    word: string
-}
-
-interface WordCategory {
+export interface WordCategory {
     wordArray: string[]
     categoryName: string
 }
 
-interface GameState {
+export interface GameState {
     words: string[]
     categories: WordCategory[]
     rows: number
     columns: number
     categorySize: number
 }
-
 
 const Game = () => {
     const [rows, setRows] = useState(4)
@@ -59,31 +55,17 @@ const Game = () => {
         const parsedData: GameState = JSON.parse(data)
         console.debug('Parsed data:', parsedData)
 
+        // This will throw an error if the game definition is invalid.
+        checkGameDefinition(parsedData)
+
         const parsedWords = parsedData.words
             .map(word => decodeURIComponent(word.trim()))
             .filter(word => validateWord(word))
-
-        // TODO: Check all words are unique
-
         shuffle(parsedWords)
-
-        // categories are provided as URL encoded JSON string.
-        const validCategories = parsedData.categories
-            .filter((category: WordCategory) => {
-                return category.wordArray.every((word: string) => validateWord(word))
-            })
-            .filter((category: WordCategory) => checkCategoryContainsWords(category.wordArray, parsedWords))
-
-        // TODO: Ensure each category has a unique name, and that categories have no overlapping words.
-        // TCheck we have the right number of categories.
-        if (validCategories.length !== cols && validCategories.length !== rows) {
-            console.error('The wrong number of categories were provided.')
-            return
-        }
 
         // Set the states once we know all is well
         setWords(parsedWords)
-        setCategories(validCategories)
+        setCategories(parsedData.categories)
 
         setRows(parsedData.rows)
         setCols(parsedData.columns)
@@ -93,7 +75,9 @@ const Game = () => {
     }, [window.location.search])
 
     // Toggle tile selection. Allow deselection and limit selection
-    const handleTileClick = (id: string) => {
+    const handleTileClick = (tile: GridTile) => {
+        const { id } = tile
+
         setSelectedTiles((prevSelected) => {
             if (prevSelected.includes(id)) {
                 // If the tile is already selected, deselect it.
@@ -155,20 +139,11 @@ const Game = () => {
 
     return (
         <>
-            <div className="game">
-                {grid.map((row, rowIndex) => (
-                    <div className="tile-row" key={rowIndex}>
-                        {row.map(tile => (
-                            <Tile
-                                key={tile.id}
-                                word={tile.word}
-                                selected={selectedTiles.includes(tile.word)}
-                                onClick={() => handleTileClick(tile.word)}
-                            />
-                        ))}
-                    </div>
-                ))}
-            </div>
+            <Grid
+                grid={grid}
+                selectedTiles={selectedTiles}
+                handleTileClick={handleTileClick}
+            />
 
             <Button
                 variant="contained"
@@ -179,19 +154,6 @@ const Game = () => {
             >
                 Submit
             </Button>
-
-            <div className="categories">
-                {categories.map((category, index) => (
-                    <div key={index} className="category">
-                        <h3>{category.categoryName}</h3>
-                        <ul>
-                            {category.wordArray.map((word, wordIndex) => (
-                                <li key={wordIndex}>{word}</li>
-                            ))}
-                        </ul>
-                    </div>
-                ))}
-            </div>
         </>
     )
 }
