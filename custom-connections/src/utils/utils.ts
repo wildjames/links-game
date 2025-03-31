@@ -19,7 +19,8 @@ export function checkCategoryContainsWords(categoryWordArray: string[], words: s
  *
  * @param array - The array to shuffle.
  */
-export function shuffle(array: any[]): void {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export function shuffle(array: Array<any>): void {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         const temp = array[i];
