@@ -10,13 +10,13 @@ import NotFoundPage from "@pages/NotFound"
 
 export default function App() {
 
-  return (
+    return (
         <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route path='*' element={<NotFoundPage />} />
-            <Route path={PATHS.GAME} element={<GamePage />} />
-            {/* <Route path={PATHS.CREATE} element={<CreatePage />} /> */}
-          </Route>
+            <Route path="/" element={<Layout />}>
+                <Route path='*' element={<NotFoundPage />} />
+                <Route path={PATHS.GAME} element={<GamePage />} />
+                {/* <Route path={PATHS.CREATE} element={<CreatePage />} /> */}
+            </Route>
         </Routes>
-  )
+    )
 }

@@ -7,14 +7,14 @@ export interface TileProps {
 }
 
 const Tile = ({ word, selected, onClick }: TileProps) => {
-  return (
-    <div
-      className={`tile ${selected ? 'selected' : ''}`}
-      onClick={onClick}
-    >
-      <p className='tile-text'>{word}</p>
-    </div>
-  )
+    return (
+        <div
+            className={`tile ${selected ? 'selected' : ''}`}
+            onClick={onClick}
+        >
+            <p className='tile-text'>{word}</p>
+        </div>
+    )
 }
 
 export default Tile
