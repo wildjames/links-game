@@ -4,7 +4,12 @@ import Button from '@mui/material/Button'
 import Tile from '@components/Tile'
 import '@styles/Game.scss'
 
-import { validateWord } from '@utils/utils'
+import { checkCategoryContainsWords, shuffle, validateWord } from '@utils/utils'
+
+interface WordCategory {
+    wordArray: string[]
+    categoryName: string
+}
 
 const Game = () => {
     const rows = 4
@@ -15,19 +20,40 @@ const Game = () => {
     const [selectedTiles, setSelectedTiles] = useState<string[]>([])
     // track words, initialized as an empty array.
     const [words, setWords] = useState<string[]>([])
+    // track work categories
+    const [categories, setCategories] = useState<WordCategory[]>([])
 
     // On mount, parse the query string to update words.
     useEffect(() => {
         const searchParams = new URLSearchParams(window.location.search)
         const wordsParam = searchParams.get('words')
+        let parsedWords: string[] = []
         if (wordsParam) {
-            // Assume words are provided as comma-separated values.
-            const parsedWords = wordsParam
+            // words are provided as comma-separated values.
+            parsedWords = wordsParam
                 .split(',')
                 .map(word => decodeURIComponent(word.trim()))
                 .filter(word => validateWord(word))
 
+            // TODO: Check all words are unique
+
+            shuffle(parsedWords)
             setWords(parsedWords)
+        }
+
+        const categoriesParam = searchParams.get('categories')
+        if (categoriesParam) {
+            // categories are provided as URL encoded JSON string.
+            const parsedCategories = JSON.parse(decodeURIComponent(categoriesParam))
+            const validCategories = parsedCategories
+                .filter((category: WordCategory) => {
+                    return category.wordArray.every((word: string) => validateWord(word))
+                })
+                .filter((category: WordCategory) => checkCategoryContainsWords(category.wordArray, parsedWords))
+            // TODO: Ensure each category has a unique name, and that categories have no overlapping words.
+            // TODO: Check we have the right number of categories.
+
+            setCategories(validCategories)
         }
     }, [])
 
@@ -59,7 +85,7 @@ const Game = () => {
     )
 
     // When there are too many words, render an error string.
-    if (words.length > rows * cols) {
+    if (words.length !== rows * cols) {
         return <div>Error: too many words!</div>
     }
 
@@ -72,13 +98,14 @@ const Game = () => {
                             <Tile
                                 key={tile.id}
                                 word={tile.word}
-                                selected={selectedTiles.includes(tile.id)}
-                                onClick={() => handleTileClick(tile.id)}
+                                selected={selectedTiles.includes(tile.word)}
+                                onClick={() => handleTileClick(tile.word)}
                             />
                         ))}
                     </div>
                 ))}
             </div>
+
             <Button
                 variant="contained"
                 color="primary"
@@ -87,6 +114,19 @@ const Game = () => {
             >
                 Submit
             </Button>
+
+            <div className="categories">
+                {categories.map((category, index) => (
+                    <div key={index} className="category">
+                        <h3>{category.categoryName}</h3>
+                        <ul>
+                            {category.wordArray.map((word, wordIndex) => (
+                                <li key={wordIndex}>{word}</li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
+            </div>
         </>
     )
 }
