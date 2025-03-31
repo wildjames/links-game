@@ -56,7 +56,8 @@ const Game = () => {
         console.debug('Parsed data:', parsedData)
 
         // This will throw an error if the game definition is invalid.
-        checkGameDefinition(parsedData)
+        // FIXME: Re-enable this when the creator is more functional
+        // checkGameDefinition(parsedData)
 
         const parsedWords = parsedData.words
             .map(word => decodeURIComponent(word.trim()))
@@ -76,19 +77,18 @@ const Game = () => {
 
     // Toggle tile selection. Allow deselection and limit selection
     const handleTileClick = (tile: GridTile) => {
-        console.debug('Tile clicked:', tile)
         setSelectedTiles((prevSelected) => {
-            if (prevSelected.includes(tile.id)) {
+            if (prevSelected.includes(tile.word)) {
                 // If the tile is already selected, deselect it.
-                console.debug("Tile deselected:", tile.id)
-                return prevSelected.filter(tileId => tileId !== tile.id)
+                console.debug("Tile deselected:", tile.word)
+                return prevSelected.filter(tileWord => tileWord !== tile.word)
             } else {
                 // If already 4 tiles are selected, ignore additional selections.
                 if (prevSelected.length >= maxSelections) {
                     console.debug("Max selections reached, ignoring additional selections.")
                     return prevSelected
                 }
-                console.debug("Tile selected:", tile.id)
+                console.debug("Tile selected:", tile.word)
                 return [...prevSelected, tile.word]
             }
         })

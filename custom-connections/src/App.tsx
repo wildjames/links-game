@@ -5,8 +5,9 @@ import { PATHS } from "@constants/environment"
 
 import "@styles/App.scss"
 
-import GamePage from "@pages/Game"
 import NotFoundPage from "@pages/NotFound"
+import GamePage from "@pages/Game"
+import CreatorPage from "@pages/Creator"
 
 export default function App() {
 
@@ -15,7 +16,7 @@ export default function App() {
             <Route path="/" element={<Layout />}>
                 <Route path='*' element={<NotFoundPage />} />
                 <Route path={PATHS.GAME} element={<GamePage />} />
-                {/* <Route path={PATHS.CREATE} element={<CreatePage />} /> */}
+                <Route path={PATHS.CREATE} element={<CreatorPage />} />
             </Route>
         </Routes>
     )

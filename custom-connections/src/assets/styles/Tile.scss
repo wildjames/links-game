@@ -9,15 +9,15 @@
   align-items: center;
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.5s ease-in-out;
   text-transform: capitalize;
 }
 
 .tile.selected {
   background-color: #00ffd5;
-  transition: linear 700ms;
+  transition: ease-in-out 700ms;
 }
 .tile:hover {
   border-color: #8bd4d4;
-  transition: linear 300ms;
+  transition: ease-in-out 300ms;
 }
