@@ -57,8 +57,7 @@ const Game = () => {
         console.debug('Parsed data:', parsedData)
 
         // This will throw an error if the game definition is invalid.
-        // FIXME: Re-enable this when the creator is more functional
-        // checkGameDefinition(parsedData)
+        checkGameDefinition(parsedData)
 
         const parsedWords = parsedData.words
             .map(word => decodeURIComponent(word.trim()))

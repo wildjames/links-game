@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import { Buffer } from 'buffer'
 
@@ -7,56 +7,48 @@ import Button from '@mui/material/Button'
 import { Snackbar, SnackbarCloseReason } from '@mui/material'
 
 import '@styles/Creator.scss'
+import { PATHS } from '@constants/environment'
 import Grid, { GridTile } from '@components/Grid'
-
-import { validateWord } from '@utils/utils'
-import { WordCategory, GameState } from './Game'
 import GroupedButtons from '@components/GroupedButtons'
 
+import { checkGameDefinition, validateWord } from '@utils/utils'
+import { WordCategory, GameState } from '@pages/Game'
+
+const MAX_ROWS = 10
+const MAX_COLUMNS = 10
 
 const CreatorPage = () => {
+    // Create a fixed 10x10 words array (2D array) with empty strings.
+    // This will be sparsely filled with words, and only the relevant section will be used
+    const [words, setWords] = useState<string[][]>(
+        Array.from({ length: MAX_ROWS }, () => Array(MAX_COLUMNS).fill(''))
+    )
+    const [categories, setCategories] = useState<WordCategory[]>([])
+
     const [rows, setRows] = useState(4)
     const [columns, setColumns] = useState(4)
     const [categorySize, setCategorySize] = useState(4)
 
-    const [words, setWords] = useState<string[]>([])
-    const [categories, setCategories] = useState<WordCategory[]>([])
-
-    // Initialize a 4x4 grid with empty words.
-    const [grid, setGrid] = useState<GridTile[][]>(
-        Array.from({ length: rows }, (_, rowIndex) =>
-            Array.from({ length: columns }, (_, colIndex) => ({
-                id: `${rowIndex}-${colIndex}`,
-                word: ''
-            }))
-        )
-    )
+    // The grid we care about is the window of the full 10×10 words array.
+    const [grid, setGrid] = useState<GridTile[][]>([])
 
     const [editingTileId, setEditingTileId] = useState<string | null>(null)
     const [gameDefinition, setGameDefinition] = useState<string>('')
 
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(false)
 
     const [searchParams] = useSearchParams()
 
+    // Build the grid
     useEffect(() => {
-        // Only update if we have everything we need.
-        if (!rows || !columns || !words.length) {
-            return
-        }
+        if (!rows || !columns || !words.length) return
 
-        // Create a grid of tile objects.
-        // TODO: Words should be a 2D array so that adding a column causes an empty column to be added, rather than shifting the words over.
-        const newGrid = Array.from({ length: rows }, (_, rowIndex) =>
-            Array.from({ length: columns }, (_, colIndex) => {
-                const index = rowIndex * columns + colIndex
-                return {
-                    id: `${rowIndex}-${colIndex}`,
-                    word: words[index] || '',
-                }
-            })
+        const newGrid = Array.from({ length: rows }, (_, i) =>
+            Array.from({ length: columns }, (_, j) => ({
+                id: `${i}-${j}`,
+                word: words[i][j] || ''
+            }))
         )
-
         setGrid(newGrid)
     }, [words, rows, columns])
 
@@ -73,68 +65,89 @@ const CreatorPage = () => {
         console.debug('Parsed data:', parsedData)
 
         // This will throw an error if the game definition is invalid.
-        // FIXME: Re-enable this when the creator is more functional
-        // checkGameDefinition(parsedData)
+        checkGameDefinition(parsedData)
 
         const parsedWords = parsedData.words
             .map(word => decodeURIComponent(word.trim()))
             .filter(word => validateWord(word))
 
-        // Set the states once we know all is well
-        setWords(parsedWords)
-        setCategories(parsedData.categories)
-
         setRows(parsedData.rows)
         setColumns(parsedData.columns)
         // Since we're editing, each row will be designated as a category.
         setCategorySize(parsedData.columns)
+        setCategories(parsedData.categories)
+
+        // Place the words into the grid, so that they're in the defined subsection
+        const newWords = Array.from({ length: MAX_ROWS }, () =>
+            Array(MAX_COLUMNS).fill('')
+        )
+
+        for (let i = 0; i < parsedData.rows; i++) {
+            for (let j = 0; j < parsedData.columns; j++) {
+                const index = i * parsedData.columns + j
+                newWords[i][j] =
+                    index < parsedWords.length ? parsedWords[index] : ''
+            }
+        }
+
+        setWords(newWords)
     }, [searchParams])
 
+    // Ensure columns always match the category size.
     useEffect(() => {
         setColumns(categorySize)
     }, [categorySize])
 
-    // When a tile is clicked, toggle it into (or out of) edit mode.
+    const createCategories = () => {
+        const newCategories = Array.from({ length: rows }, (_, i) => ({
+            categoryName: `Category ${i + 1}`,
+            wordArray: words[i].slice(0, categorySize)
+        }))
+        setCategories(newCategories)
+    }
+
+    // When a tile is clicked, toggle its edit mode.
     const handleTileClick = (tile: GridTile) => {
         if (editingTileId === tile.id) {
-            // Exit edit mode.
             setEditingTileId(null)
         } else {
-            // Enter edit mode for the clicked tile.
             setEditingTileId(tile.id)
         }
     }
 
-    // Update the text of a tile.
+    // Update the text for a tile by mapping its full-grid indices.
     const handleTileTextChange = (tileId: string, newText: string) => {
-        setGrid(prevGrid =>
-            prevGrid.map(row =>
-                row.map(tile =>
-                    tile.id === tileId ? { ...tile, word: newText } : tile
+        const [r, c] = tileId.split('-').map(Number)
+        setWords(prevWords =>
+            prevWords.map((row, rowIndex) =>
+                row.map((word, colIndex) =>
+                    rowIndex === r && colIndex === c ? newText : word
                 )
             )
         )
+        createCategories()
     }
 
-    // Generate a game definition string (similar to your GameState)
+    // Generate a game definition string using only the defined window.
     const generateGameDefinition = () => {
-        // This will throw an error if the game definition is invalid.
-        // FIXME: Re-enable this when the creator is more functional
-        // checkGameDefinition(parsedData)
+        // Flatten the words from the displayed grid region.
+        const flatWords = Array.from({ length: rows }, (_, i) =>
+            Array.from({ length: columns }, (_, j) =>
+                encodeURIComponent(words[i][j].trim())
+            )
+        ).flat()
 
-        // Flatten grid words, trimming and encoding each
-        const words = grid
-            .flat()
-            .map(tile => encodeURIComponent(tile.word.trim()))
-        const gameDefinitionObj = {
-            words,
-            categories: [], // FIXME: empty for now
+        const gameDefinitionObj: GameState = {
+            words: flatWords,
+            categories,
             rows,
             columns,
             categorySize
         }
+
         const jsonString = JSON.stringify(gameDefinitionObj)
         const base64String = Buffer.from(jsonString, 'utf-8').toString('base64')
+
         setGameDefinition(base64String)
         navigator.clipboard.writeText(base64String)
         setOpen(true)
@@ -144,11 +157,8 @@ const CreatorPage = () => {
         _event: React.SyntheticEvent | Event,
         reason?: SnackbarCloseReason,
     ) => {
-        if (reason === 'clickaway') {
-            return
-        }
-
-        setOpen(false);
+        if (reason === 'clickaway') return
+        setOpen(false)
     }
 
     return (
@@ -190,6 +200,17 @@ const CreatorPage = () => {
                 </Button>
             </div>
 
+            {gameDefinition && (
+                <div className="game-definition">
+                    <Link
+                        to={`${PATHS.GAME}?data=${gameDefinition}`}
+                        target="_blank"
+                    >
+                        Go to game
+                    </Link>
+                </div>
+            )}
+
             <Snackbar
                 open={open}
                 autoHideDuration={6000}
@@ -197,17 +218,6 @@ const CreatorPage = () => {
                 message="Copied to clipboard!"
             />
 
-            {gameDefinition && (
-                <div className="game-definition">
-                    <h2>Game Definition String</h2>
-                    <textarea
-                        value={gameDefinition}
-                        readOnly
-                        rows={1}
-                        cols={50}
-                    />
-                </div>
-            )}
         </div>
     )
 }

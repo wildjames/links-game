@@ -1,1 +1,6 @@
-http://localhost:3000/game?words=foo,bar,spam,eggs,bottle,desk,wallet,laptop,phone,mouse,screen,python,rabbit,monty,goo,gaga&categories=[{%22categoryName%22%3A%20%22test%20category%20A%22%2C%22wordArray%22%3A%20[%22foo%22%2C%22bar%22%2C%22spam%22%2C%22eggs%22]}]
+TODO:
+  - Having categories and words both defined is redundant. Only pass in the categories.
+  - Add some styling to the creator to indicate that rows are categories. Colour the background
+  - When the user guesses correctly on the game, the tiles should turn the same colour
+  - When the user guesses correctly on the game, the tiles should move up to the next top row
+  - Have a small database, that can link a short UUID to a game definition string, so that we can send minified links
