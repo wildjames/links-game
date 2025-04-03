@@ -1,6 +1,8 @@
 import React from "react";
 import { Button, ButtonGroup } from "@mui/material";
 
+import "@styles/GroupedButtons.scss";
+
 interface GroupedButtonsProps {
     counter: number;
     setCounter: React.Dispatch<React.SetStateAction<number>>;
@@ -31,7 +33,7 @@ const GroupedButtons = ({
 
     return (
         <div className="grouped-buttons">
-            <label>{label}</label>
+            <label className="button-label">{label}</label>
             <ButtonGroup size="small" aria-label={`${label} button group`}>
                 <Button onClick={handleIncrement} disabled={counter >= max}>
                     +

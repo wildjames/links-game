@@ -1,0 +1,25 @@
+.grouped-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  background-color: rgb(255, 249, 243);
+  padding: 0.5rem;
+  border-radius: 10px;
+  border: 4px solid #dbe0df;
+
+  .group {
+    display: flex;
+    gap: 8px;
+
+    button {
+      flex: 1;
+    }
+  }
+
+  > label {
+    font-size: 1.2rem;
+    margin-bottom: 0.2rem;
+    text-align: center;
+  }
+}

@@ -1,4 +1,7 @@
+import { Flipper, Flipped } from "react-flip-toolkit"
+
 import Tile from "./Tile"
+import "@styles/Grid.scss"
 
 export interface GridTile {
     id: string
@@ -25,40 +28,58 @@ const Grid = ({
     editingTileId,
     onTileTextChange,
 }: GridProps) => {
+    // If we're in editable mode, then we are showing a solved grid. Make all the rows the right class
+    const editable = !!onTileTextChange
+    const gridRowClass = editable ? 'grid-row solved' : 'grid-row'
+
+    const flatGrid = grid.flat().map(tile => tile.word).join('')
+    console.log("Grid render", grid)
+
     return (
-        <div className="game">
+        <Flipper flipKey={flatGrid} className="grid">
             {grid.map((row, rowIndex) => (
-                <div className="tile-row" key={rowIndex}>
+                <div className={gridRowClass} key={rowIndex}>
                     {row.map(tile =>
                         editingTileId === tile.id && onTileTextChange ? (
-                            <input
-                                className="tile"
-                                key={tile.id}
-                                type="text"
-                                value={tile.word}
-                                onChange={(e) => onTileTextChange(tile.id, e.target.value)}
-                                placeholder="Enter word"
-                                onBlur={() => handleTileClick(tile)}
-                                autoFocus
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        e.currentTarget.blur();
-                                    }
-                                }}
-                            />
+                            // Editing mode, the tile is an input box
+                            <Flipped key={tile.word} flipId={tile.word}>
+                                <div>
+                                    <input
+                                        className="tile"
+                                        key={tile.id}
+                                        data-testid={tile.id}
+                                        type="text"
+                                        value={tile.word}
+                                        onChange={(e) => onTileTextChange(tile.id, e.target.value)}
+                                        placeholder="Enter word"
+                                        onBlur={() => handleTileClick(tile)}
+                                        autoFocus
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                e.currentTarget.blur();
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </Flipped>
                         ) : (
-                            <Tile
-                                key={tile.id}
-                                word={tile.word}
-                                selected={selectedTiles.includes(tile.word)}
-                                onClick={() => handleTileClick(tile)}
-                            />
+                            // Normal mode, the tile is static content
+                            <Flipped key={tile.word} flipId={tile.word}>
+                                <div>
+                                    <Tile
+                                        key={tile.id}
+                                        word={tile.word}
+                                        selected={selectedTiles.includes(tile.word)}
+                                        onClick={() => handleTileClick(tile)}
+                                    />
+                                </div>
+                            </Flipped>
                         )
                     )}
                 </div>
             ))}
-        </div>
+        </Flipper>
     )
 }
 

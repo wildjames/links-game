@@ -94,7 +94,12 @@ const Game = () => {
             console.debug(`Correct! category: ${matchingCategory.categoryName}`)
 
             // TODO: Handle correct submission
-            setSelectedTiles([]) // Reset selected tiles after submission
+            setWords(prevWords => {
+                const nonSelected = prevWords.filter(word => !selectedTiles.includes(word));
+                return [...selectedTiles, ...nonSelected];
+            });
+
+            setSelectedTiles([])
         } else {
             console.debug('Incorrect.')
 
@@ -130,21 +135,21 @@ const Game = () => {
 
     return (
         <>
-            <Grid
-                grid={grid}
-                selectedTiles={selectedTiles}
-                handleTileClick={handleTileClick}
-            />
+                <Grid
+                    grid={grid}
+                    selectedTiles={selectedTiles}
+                    handleTileClick={handleTileClick}
+                />
 
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
-                className="submit-button"
-                disabled={selectedTiles.length !== 4}
-            >
-                Submit
-            </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSubmit}
+                    className="submit-button"
+                    disabled={selectedTiles.length !== 4}
+                >
+                    Submit
+                </Button>
         </>
     )
 }
