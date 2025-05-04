@@ -14,6 +14,8 @@ export interface GridProps {
 
     // Optional: for game play selection (used by Game)
     selectedTiles?: string[]
+    // Optional: The rows that are solved already will be highlighted.
+    solvedRows?: boolean[]
 
     // For editable mode: the id of the tile currently being edited.
     editingTileId?: string
@@ -24,25 +26,35 @@ export interface GridProps {
 const Grid = ({
     grid,
     selectedTiles = [],
+    solvedRows = [],
     handleTileClick,
     editingTileId,
     onTileTextChange,
 }: GridProps) => {
     // If we're in editable mode, then we are showing a solved grid. Make all the rows the right class
     const editable = !!onTileTextChange
-    const gridRowClass = editable ? 'grid-row solved' : 'grid-row'
 
+    let gridRowClasses = []
+    if (editable) {
+        gridRowClasses = new Array(grid.length).fill('grid-row solved')
+    } else {
+        gridRowClasses = grid.map((_, index) => {
+            return solvedRows[index] ? 'grid-row solved' : 'grid-row'
+        })
+    }
+
+    // We need a flattened version of the grid to use as a flipKey.
     const flatGrid = grid.flat().map(tile => tile.word).join('')
     console.log("Grid render", grid)
 
     return (
         <Flipper flipKey={flatGrid} className="grid">
             {grid.map((row, rowIndex) => (
-                <div className={gridRowClass} key={rowIndex}>
+                <div className={gridRowClasses[rowIndex]} key={rowIndex}>
                     {row.map(tile =>
                         editingTileId === tile.id && onTileTextChange ? (
                             // Editing mode, the tile is an input box
-                            <Flipped key={tile.word} flipId={tile.word}>
+                            <Flipped key={tile.id} flipId={tile.id}>
                                 <div>
                                     <input
                                         className="tile"
@@ -65,7 +77,7 @@ const Grid = ({
                             </Flipped>
                         ) : (
                             // Normal mode, the tile is static content
-                            <Flipped key={tile.word} flipId={tile.word}>
+                            <Flipped key={tile.id} flipId={tile.id}>
                                 <div>
                                     <Tile
                                         key={tile.id}

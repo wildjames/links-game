@@ -25,6 +25,7 @@ const Game = () => {
 
     // track selected tiles, using a unique id for each tile.
     const [selectedTiles, setSelectedTiles] = useState<string[]>([])
+    const [rowsSolved, setRowsSolved] = useState<boolean[]>([])
     const [validGame, setValidGame] = useState(false)
 
     const [searchParams] = useSearchParams()
@@ -55,6 +56,7 @@ const Game = () => {
 
         // Set the states once we know all is well
         setWords(parsedWords)
+        setRowsSolved(new Array(parsedData.rows).fill(false))
         setCategories(parsedData.categories)
 
         setRows(parsedData.rows)
@@ -66,6 +68,14 @@ const Game = () => {
 
     // Toggle tile selection. Allow deselection and limit selection
     const handleTileClick = (tile: GridTile) => {
+        // If the tile is already part of a solved row, ignore it.
+        const tileIndex = grid.flat().findIndex(t => t.id === tile.id)
+        const rowIndex = Math.floor(tileIndex / cols)
+        if (rowsSolved[rowIndex]) {
+            console.debug("Tile already solved, ignoring click.")
+            return
+        }
+
         setSelectedTiles((prevSelected) => {
             if (prevSelected.includes(tile.word)) {
                 // If the tile is already selected, deselect it.
@@ -85,7 +95,7 @@ const Game = () => {
 
     const handleSubmit = () => {
         console.debug('Selected tiles:', selectedTiles)
-        // Find a category where all selected words exist.
+
         const matchingCategory = categories.find(category =>
             selectedTiles.every(word => category.wordArray.includes(word))
         )
@@ -93,17 +103,54 @@ const Game = () => {
         if (matchingCategory) {
             console.debug(`Correct! category: ${matchingCategory.categoryName}`)
 
-            // TODO: Handle correct submission
-            setWords(prevWords => {
-                const nonSelected = prevWords.filter(word => !selectedTiles.includes(word));
-                return [...selectedTiles, ...nonSelected];
-            });
+            const numAlreadySolved = rowsSolved.reduce(
+                (accumulator, currentValue) => accumulator + (currentValue ? 1 : 0),
+                0
+            )
+
+            setGrid(prevGrid => {
+                const flatGrid = prevGrid.flat()
+
+                // Separate selected and remaining tiles
+                const selected = flatGrid.filter(tile => selectedTiles.includes(tile.word))
+                const remaining = flatGrid.filter(tile => !selectedTiles.includes(tile.word))
+
+                // Insert selected group at the index corresponding to the next unsolved row
+                const insertIndex = numAlreadySolved * cols
+                const reordered = [
+                    ...remaining.slice(0, insertIndex),
+                    ...selected,
+                    ...remaining.slice(insertIndex),
+                ].slice(0, rows * cols) // just to be sage, slice to the grid size
+
+                // Rebuild the 2D grid from reordered list
+                const newGrid: GridTile[][] = []
+                for (let row = 0; row < rows; row++) {
+                    const rowTiles = []
+                    for (let col = 0; col < cols; col++) {
+                        const index = row * cols + col
+                        const tile = reordered[index]
+                        if (tile) {
+                            rowTiles.push(tile)
+                        }
+                    }
+                    newGrid.push(rowTiles)
+                }
+
+                return newGrid
+            })
+
+            setRowsSolved(prevRowsSolved => {
+                const newRowsSolved = [...prevRowsSolved]
+                newRowsSolved[numAlreadySolved] = true // Mark the next row as solved
+                return newRowsSolved
+            })
 
             setSelectedTiles([])
         } else {
             console.debug('Incorrect.')
 
-            // TODO: Handle incorrect submission. Some kind of animation for feedback
+            // TODO: Add visual feedback?
             setSelectedTiles([])
         }
     }
@@ -135,21 +182,22 @@ const Game = () => {
 
     return (
         <>
-                <Grid
-                    grid={grid}
-                    selectedTiles={selectedTiles}
-                    handleTileClick={handleTileClick}
-                />
+            <Grid
+                grid={grid}
+                selectedTiles={selectedTiles}
+                solvedRows={rowsSolved}
+                handleTileClick={handleTileClick}
+            />
 
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSubmit}
-                    className="submit-button"
-                    disabled={selectedTiles.length !== 4}
-                >
-                    Submit
-                </Button>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+                className="submit-button"
+                disabled={selectedTiles.length !== 4}
+            >
+                Submit
+            </Button>
         </>
     )
 }

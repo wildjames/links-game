@@ -157,7 +157,7 @@ const CreatorPage = () => {
         const base64String = Buffer.from(jsonString, 'utf-8').toString('base64')
 
         setGameDefinition(base64String)
-        navigator.clipboard.writeText(base64String)
+        navigator.clipboard.writeText(`http://localhost:3000${PATHS.GAME}?data=${gameDefinition}`)
         setOpen(true)
     }
 
