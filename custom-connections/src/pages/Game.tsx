@@ -188,6 +188,7 @@ const Game = () => {
         <>
 
             <div className="game-container">
+                <h1>links</h1>
                 <Grid
                     grid={grid}
                     selectedTiles={selectedTiles}

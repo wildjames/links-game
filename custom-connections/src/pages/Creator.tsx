@@ -171,7 +171,8 @@ const CreatorPage = () => {
 
     return (
         <div className="creator-page">
-            <h1>links game creator</h1>
+            <h1>links</h1>
+            <h2>game creator</h2>
 
             <div className="controls">
                 <GroupedButtons
