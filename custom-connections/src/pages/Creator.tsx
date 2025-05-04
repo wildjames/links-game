@@ -7,7 +7,7 @@ import '@styles/Creator.scss'
 
 import { PATHS } from '@constants/environment'
 
-import useGameEditor from '@hooks/useGameEditor'
+import useEditor from '@hooks/useEditor'
 
 import GroupedButtons from '@components/GroupedButtons'
 import CreatorGrid from '@components/CreatorGrid'
@@ -27,7 +27,7 @@ const CreatorPage = () => {
         handleTileTextChange,
         copyGameLink,
         handleCloseSnackbar
-    } = useGameEditor()
+    } = useEditor()
 
     return (
         <div className="creator-page">

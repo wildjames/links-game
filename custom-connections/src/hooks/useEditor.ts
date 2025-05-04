@@ -16,7 +16,7 @@ const MAX_COLUMNS = 10
 
 // TODO: Even if the user has made an invalid game, we should still update the editor page link to save their progress.
 
-const useGameEditor = () => {
+const useEditor = () => {
     const [words, setWords] = useState<string[][]>(
         Array.from({ length: MAX_ROWS }, () => Array(MAX_COLUMNS).fill(''))
     )
@@ -183,4 +183,4 @@ const useGameEditor = () => {
     }
 }
 
-export default useGameEditor
+export default useEditor
