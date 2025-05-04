@@ -33,37 +33,42 @@ const Game = () => {
 
     // On mount, parse the query string to update the game definition.
     useEffect(() => {
-        setValidGame(false)
 
         const payload = searchParams.get('data')
         if (!payload) {
             console.error('No data found in the URL')
+            setValidGame(false)
             return
         }
 
-        const data = Buffer.from(payload, "base64").toString('utf-8')
-        const parsedData: GameState = JSON.parse(data)
-        console.debug('Parsed data:', parsedData)
+        try {
+            const data = Buffer.from(payload, "base64").toString('utf-8')
+            const parsedData: GameState = JSON.parse(data)
+            console.debug('Parsed data:', parsedData)
 
-        // This will throw an error if the game definition is invalid.
-        checkGameDefinition(parsedData)
+            // This will throw an error if the game definition is invalid.
+            checkGameDefinition(parsedData)
 
-        const parsedWords = parsedData.categories
-            .flatMap(category => category.wordArray)
-            .map(word => word.trim())
-            .filter(word => validateWord(word))
-        shuffle(parsedWords)
+            const parsedWords = parsedData.categories
+                .flatMap(category => category.wordArray)
+                .map(word => word.trim())
+                .filter(word => validateWord(word))
+            shuffle(parsedWords)
 
-        // Set the states once we know all is well
-        setWords(parsedWords)
-        setRowsSolved(new Array(parsedData.rows).fill(false))
-        setCategories(parsedData.categories)
+            // Set the states once we know all is well
+            setWords(parsedWords)
+            setRowsSolved(new Array(parsedData.rows).fill(false))
+            setCategories(parsedData.categories)
 
-        setRows(parsedData.rows)
-        setCols(parsedData.columns)
-        setMaxSelections(parsedData.categorySize)
+            setRows(parsedData.rows)
+            setCols(parsedData.columns)
+            setMaxSelections(parsedData.categorySize)
 
-        setValidGame(true)
+            setValidGame(true)
+        } catch (error) {
+            console.error('Error parsing game definition:', error)
+            setValidGame(false)
+        }
     }, [searchParams])
 
     // Toggle tile selection. Allow deselection and limit selection
@@ -175,29 +180,31 @@ const Game = () => {
         setGrid(newGrid)
     }, [words, rows, cols])
 
-    // When there are too many words, render an error string.
     if (!validGame) {
         return <div>Error: bad game configuration!</div>
     }
 
     return (
         <>
-            <Grid
-                grid={grid}
-                selectedTiles={selectedTiles}
-                solvedRows={rowsSolved}
-                handleTileClick={handleTileClick}
-            />
 
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
-                className="submit-button"
-                disabled={selectedTiles.length !== 4}
-            >
-                Submit
-            </Button>
+            <div className="game-container">
+                <Grid
+                    grid={grid}
+                    selectedTiles={selectedTiles}
+                    solvedRows={rowsSolved}
+                    handleTileClick={handleTileClick}
+                />
+
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSubmit}
+                    className="submit-button"
+                    disabled={selectedTiles.length !== 4}
+                >
+                    Submit
+                </Button>
+            </div>
         </>
     )
 }
