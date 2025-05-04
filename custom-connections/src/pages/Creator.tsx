@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import { Buffer } from 'buffer'
@@ -8,14 +8,17 @@ import { Snackbar, SnackbarCloseReason } from '@mui/material'
 
 import '@styles/Creator.scss'
 import { PATHS } from '@constants/environment'
-import Grid, { GridTile } from '@components/Grid'
-import GroupedButtons from '@components/GroupedButtons'
 
 import { checkGameDefinition, validateWord } from '@utils/utils'
 import { WordCategory, GameState } from '@utils/commonTypes'
 
+import CreatorGrid, { CreatorGridTile } from '@components/CreatorGrid'
+import GroupedButtons from '@components/GroupedButtons'
+
 const MAX_ROWS = 10
 const MAX_COLUMNS = 10
+
+// TODO: Even if the user has made an invalid game, we should still update the editor page link to save their progress.
 
 const CreatorPage = () => {
     // Create a fixed 10x10 words array (2D array) with empty strings.
@@ -30,10 +33,10 @@ const CreatorPage = () => {
     const [categorySize, setCategorySize] = useState(4)
 
     // The grid we care about is the window of the full 10×10 words array.
-    const [grid, setGrid] = useState<GridTile[][]>([])
+    const [grid, setGrid] = useState<CreatorGridTile[][]>([])
 
-    const [editingTileId, setEditingTileId] = useState<string | null>(null)
-    const [gameDefinition, setGameDefinition] = useState<string>('')
+    const [editingTileId, setEditingTileId] = useState<string | undefined>(undefined)
+    const [gameDefinition, setGameDefinition] = useState<string | undefined>(undefined)
 
     const [open, setOpen] = useState(false)
 
@@ -55,6 +58,7 @@ const CreatorPage = () => {
     // On mount, parse the query string to update the game definition.
     useEffect(() => {
         const payload = searchParams.get('data')
+        setGameDefinition(payload ?? undefined)
         if (!payload) {
             console.error('No data found in the URL')
             return
@@ -105,13 +109,16 @@ const CreatorPage = () => {
             wordArray: words[i].slice(0, categorySize)
         }))
         setCategories(newCategories)
-        console.debug('Categories:', newCategories)
     }, [words, rows, categorySize])
 
+    useEffect(() => {
+        generateGameDefinition()
+    }, [categories])
+
     // When a tile is clicked, toggle its edit mode.
-    const handleTileClick = (tile: GridTile) => {
+    const handleTileClick = (tile: CreatorGridTile) => {
         if (editingTileId === tile.id) {
-            setEditingTileId(null)
+            setEditingTileId(undefined)
         } else {
             setEditingTileId(tile.id)
         }
@@ -119,7 +126,6 @@ const CreatorPage = () => {
 
     // Update the text for a tile by mapping its full-grid indices.
     const handleTileTextChange = (tileId: string, newText: string) => {
-        console.debug
         const [r, c] = tileId.split('-').map(Number)
         setWords(prevWords =>
             prevWords.map((row, rowIndex) =>
@@ -132,6 +138,7 @@ const CreatorPage = () => {
 
     // Generate a game definition string using only the defined window.
     const generateGameDefinition = () => {
+        console.log('Generating game definition...', words)
         try {
             checkGameDefinition({
                 categories,
@@ -139,12 +146,11 @@ const CreatorPage = () => {
                 columns,
                 categorySize
             })
-        }
-        catch (error) {
-            console.error('Invalid game definition:', error)
-            alert('Invalid game definition. Please check your input.')
+        } catch (error) {
+            setGameDefinition(undefined)
             return
         }
+        console.log('Game definition is valid')
 
         const gameDefinitionObj: GameState = {
             categories,
@@ -157,6 +163,12 @@ const CreatorPage = () => {
         const base64String = Buffer.from(jsonString, 'utf-8').toString('base64')
 
         setGameDefinition(base64String)
+
+        searchParams.set('data', base64String)
+        window.history.replaceState({}, '', `${window.location.pathname}?${searchParams}`)
+    }
+
+    const copyGameLink = () => {
         navigator.clipboard.writeText(`http://localhost:3000${PATHS.GAME}?data=${gameDefinition}`)
         setOpen(true)
     }
@@ -192,8 +204,8 @@ const CreatorPage = () => {
                 />
             </div>
 
-            <Grid
-                grid={grid}
+            <CreatorGrid
+                wordGrid={grid}
                 handleTileClick={handleTileClick}
                 editingTileId={editingTileId || undefined}
                 onTileTextChange={handleTileTextChange}
@@ -203,20 +215,23 @@ const CreatorPage = () => {
                 <Button
                     variant="contained"
                     color="primary"
-                    onClick={generateGameDefinition}
+                    onClick={copyGameLink}
+                    disabled={!gameDefinition}
                 >
-                    Generate Game Definition
+                    Copy Game Link
                 </Button>
             </div>
 
             {gameDefinition && (
                 <div className="game-definition">
-                    <Link
+                    <Button
+                        component={Link}
                         to={`${PATHS.GAME}?data=${gameDefinition}`}
                         target="_blank"
+                        disabled={!gameDefinition}
                     >
-                        Go to game
-                    </Link>
+                        Go to game (new tab)
+                    </Button>
                 </div>
             )}
 

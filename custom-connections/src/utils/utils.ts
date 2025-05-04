@@ -43,9 +43,11 @@ export function checkGameDefinition(gameDefinition: GameState): void {
     const parsedWords = gameDefinition.categories
         .flatMap(category => category.wordArray)
         .map(word => word.trim().toLowerCase())
+        .filter((word: string) => validateWord(word)) // remove empty words
 
     const uniqueWords = new Set(parsedWords)
     if (uniqueWords.size !== parsedWords.length) {
+        console.error("Duplicate words found in the list", parsedWords)
         throw new Error("Duplicate words found in the list")
     }
 
@@ -75,6 +77,10 @@ export function checkGameDefinition(gameDefinition: GameState): void {
     if (
         gameDefinition.categories.length !== gameDefinition.columns
         && gameDefinition.categories.length !== gameDefinition.rows) {
+        console.error(
+            "The number of categories provided does not match the number of rows or columns",
+            gameDefinition.categories.length, gameDefinition.rows, gameDefinition.columns, gameDefinition.categorySize
+        )
         throw new Error("The wrong number of categories were provided")
     }
 

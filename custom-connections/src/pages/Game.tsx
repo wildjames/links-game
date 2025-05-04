@@ -4,8 +4,7 @@ import { Buffer } from 'buffer'
 
 import Button from '@mui/material/Button'
 
-import { GridTile } from '@components/Grid'
-import Grid from '@components/Grid'
+import GameGrid, { GameGridTile, ShakeSelectedTiles } from '@components/GameGrid'
 
 import '@styles/Game.scss'
 
@@ -21,7 +20,7 @@ const Game = () => {
     const [categories, setCategories] = useState<WordCategory[]>([])
 
     // The grid is a 2D array of objects, each with an id and a word.
-    const [grid, setGrid] = useState<GridTile[][]>([])
+    const [grid, setGrid] = useState<GameGridTile[][]>([])
 
     // track selected tiles, using a unique id for each tile.
     const [selectedTiles, setSelectedTiles] = useState<string[]>([])
@@ -72,7 +71,7 @@ const Game = () => {
     }, [searchParams])
 
     // Toggle tile selection. Allow deselection and limit selection
-    const handleTileClick = (tile: GridTile) => {
+    const handleTileClick = (tile: GameGridTile) => {
         // If the tile is already part of a solved row, ignore it.
         const tileIndex = grid.flat().findIndex(t => t.id === tile.id)
         const rowIndex = Math.floor(tileIndex / cols)
@@ -129,7 +128,7 @@ const Game = () => {
                 ].slice(0, rows * cols) // just to be sage, slice to the grid size
 
                 // Rebuild the 2D grid from reordered list
-                const newGrid: GridTile[][] = []
+                const newGrid: GameGridTile[][] = []
                 for (let row = 0; row < rows; row++) {
                     const rowTiles = []
                     for (let col = 0; col < cols; col++) {
@@ -155,8 +154,7 @@ const Game = () => {
         } else {
             console.debug('Incorrect.')
 
-            // TODO: Add visual feedback?
-            setSelectedTiles([])
+            ShakeSelectedTiles()
         }
     }
 
@@ -189,8 +187,8 @@ const Game = () => {
 
             <div className="game-container">
                 <h1>links</h1>
-                <Grid
-                    grid={grid}
+                <GameGrid
+                    wordGrid={grid}
                     selectedTiles={selectedTiles}
                     solvedRows={rowsSolved}
                     handleTileClick={handleTileClick}
