@@ -56,12 +56,12 @@ const useEditor = () => {
         const parsedData: GameState = JSON.parse(data)
         console.debug('Parsed data:', parsedData)
 
-        checkGameDefinition(parsedData)
+        // checkGameDefinition(parsedData)
 
         const parsedWords = parsedData.categories
             .flatMap(category => category.wordArray)
             .map(word => decodeURIComponent(word.trim()))
-            .filter(word => validateWord(word))
+            .map(word => validateWord(word) ? word : '')
 
         setRows(parsedData.rows)
         setColumns(parsedData.columns)
@@ -109,11 +109,10 @@ const useEditor = () => {
                 columns,
                 categorySize
             })
+            console.log('Game definition is valid')
         } catch (error) {
-            setGameDefinition(undefined)
-            return
+            console.error('Invalid game definition:', error)
         }
-        console.log('Game definition is valid')
 
         const gameDefinitionObj: GameState = {
             categories,
