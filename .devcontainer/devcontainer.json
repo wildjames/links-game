@@ -9,7 +9,7 @@
         3000
     ],
     "mounts": [
-        "source=${env:HOME}${env:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind"
+        "source=${env:HOME}${env:USERPROFILE}/.ssh,target=/home/node/.ssh,type=bind"
     ]
     // Use 'postCreateCommand' to run commands after the container is created.
     // "postCreateCommand": "uname -a",
