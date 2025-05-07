@@ -50,7 +50,7 @@ export const useGame = () => {
             setCategories(parsedData.categories);
 
             setRows(parsedData.rows);
-            setCols(parsedData.columns);
+            setCols(parsedData.categorySize);
             setMaxSelections(parsedData.categorySize);
 
             setValidGame(true);

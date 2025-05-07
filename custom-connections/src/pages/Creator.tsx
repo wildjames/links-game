@@ -26,7 +26,8 @@ const CreatorPage = () => {
         handleTileClick,
         handleTileTextChange,
         copyGameLink,
-        handleCloseSnackbar
+        handleCloseSnackbar,
+        validGame
     } = useEditor()
 
     return (
@@ -58,27 +59,30 @@ const CreatorPage = () => {
                 onTileTextChange={handleTileTextChange}
             />
 
-            <div className="controls">
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={copyGameLink}
-                    disabled={!gameDefinition}
-                >
-                    Copy Game Link
-                </Button>
-            </div>
-
             {gameDefinition && (
-                <div className="game-definition">
-                    <Button
-                        component={Link}
-                        to={`${PATHS.GAME}?data=${gameDefinition}`}
-                        target="_blank"
-                        disabled={!gameDefinition}
-                    >
-                        Go to game (new tab)
-                    </Button>
+                <div className='game-links'>
+                    <div className="controls copy-game-link">
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={copyGameLink}
+                            disabled={!validGame}
+                        >
+                            Copy Game Link
+                        </Button>
+                    </div>
+                    <div className="controls open-game-link">
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            component={Link}
+                            to={`${PATHS.GAME}?data=${gameDefinition}`}
+                            target="_blank"
+                            disabled={!validGame}
+                        >
+                            Go to game (new tab)
+                        </Button>
+                    </div>
                 </div>
             )}
 

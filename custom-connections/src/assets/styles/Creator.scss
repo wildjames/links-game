@@ -11,3 +11,10 @@
     width: fit-content;
     padding: 20px;
 }
+
+.game-links {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}

@@ -6,7 +6,6 @@ export interface WordCategory {
 export interface GameState {
     categories: WordCategory[]
     rows: number
-    columns: number
     categorySize: number
 }
 

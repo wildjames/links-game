@@ -1,183 +1,160 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
-
 import { Buffer } from 'buffer'
-
 import { SnackbarCloseReason } from '@mui/material'
 
 import { PATHS } from '@constants/environment'
 import { GameState, GridTile, WordCategory } from '@utils/commonTypes'
 import { checkGameDefinition, validateWord } from '@utils/utils'
 
-
 const MAX_ROWS = 10
 const MAX_COLUMNS = 10
 
-// TODO: Even if the user has made an invalid game, we should still update the editor page link to save their progress.
-
 const useEditor = () => {
+    // --- CORE STATE ---
     const [words, setWords] = useState<string[][]>(
         Array.from({ length: MAX_ROWS }, () => Array(MAX_COLUMNS).fill(''))
     )
-    const [categories, setCategories] = useState<WordCategory[]>([])
     const [rows, setRows] = useState(4)
-    const [columns, setColumns] = useState(4)
-    const [categorySize, setCategorySize] = useState(4)
-    const [grid, setGrid] = useState<GridTile[][]>([])
-    const [editingTileId, setEditingTileId] = useState<string | undefined>(undefined)
-    const [gameDefinition, setGameDefinition] = useState<string | undefined>(undefined)
+    const [categorySize, setCategorySize] = useState(4)  // ← your “columns”
+    const [editingTileId, setEditingTileId] = useState<string>()
     const [open, setOpen] = useState(false)
-    const [searchParams] = useSearchParams()
+    const [gameDefinition, setGameDefinition] = useState<string>()
+    const [validGame, setValidGame] = useState(false)
 
-    // Build the grid
-    useEffect(() => {
-        if (!rows || !columns || !words.length) return
+    // search-param helpers
+    const [searchParams, setSearchParams] = useSearchParams()
 
-        const newGrid = Array.from({ length: rows }, (_, i) =>
-            Array.from({ length: columns }, (_, j) => ({
-                id: `${i}-${j}`,
-                word: words[i][j] || ''
+    // --- DERIVED GRID ---
+    const grid = useMemo<GridTile[][]>(() => {
+        return Array.from({ length: rows }, (_, r) =>
+            Array.from({ length: categorySize }, (_, c) => ({
+                id: `${r}-${c}`,
+                word: words[r]?.[c] ?? '',
             }))
         )
-        setGrid(newGrid)
-    }, [words, rows, columns])
-
-    // Parse game data from the URL
-    useEffect(() => {
-        const payload = searchParams.get('data')
-        setGameDefinition(payload ?? undefined)
-        if (!payload) {
-            console.error('No data found in the URL')
-            return
-        }
-
-        const data = Buffer.from(payload, 'base64').toString('utf-8')
-        const parsedData: GameState = JSON.parse(data)
-        console.debug('Parsed data:', parsedData)
-
-        // checkGameDefinition(parsedData)
-
-        const parsedWords = parsedData.categories
-            .flatMap(category => category.wordArray)
-            .map(word => decodeURIComponent(word.trim()))
-            .map(word => validateWord(word) ? word : '')
-
-        setRows(parsedData.rows)
-        setColumns(parsedData.columns)
-        setCategorySize(parsedData.columns)
-        setCategories(parsedData.categories)
-
-        const newWords = Array.from({ length: MAX_ROWS }, () =>
-            Array(MAX_COLUMNS).fill('')
-        )
-
-        for (let i = 0; i < parsedData.rows; i++) {
-            for (let j = 0; j < parsedData.columns; j++) {
-                const index = i * parsedData.columns + j
-                newWords[i][j] =
-                    index < parsedWords.length ? parsedWords[index] : ''
-            }
-        }
-
-        setWords(newWords)
-    }, [searchParams])
-
-    useEffect(() => {
-        setColumns(categorySize)
-    }, [categorySize])
-
-    useEffect(() => {
-        generateGameDefinition()
-    }, [categories])
-
-    useEffect(() => {
-        const newCategories = Array.from({ length: rows }, (_, i) => ({
-            categoryName: `Category ${i + 1}`,
-            wordArray: words[i].slice(0, categorySize)
-        }))
-        setCategories(newCategories)
     }, [words, rows, categorySize])
 
-    // Generate a game definition string using only the defined window
-    const generateGameDefinition = () => {
-        console.log('Generating game definition...', words)
+    // --- DERIVED CATEGORIES ---
+    const categories = useMemo<WordCategory[]>(() => {
+        return Array.from({ length: rows }, (_, r) => ({
+            categoryName: `Category ${r + 1}`,
+            wordArray: words[r].slice(0, categorySize)
+                .map(w => {
+                    const decoded = decodeURIComponent(w.trim())
+                    return validateWord(decoded) ? decoded : ''
+                }),
+        }))
+    }, [words, rows, categorySize])
+
+    // --- SYNC URL AND STATE (once) ---
+    useEffect(() => {
+        const payload = searchParams.get('data')
+        if (!payload) return
+
+        try {
+            const text = Buffer.from(payload, 'base64').toString('utf8')
+            const parsed: GameState = JSON.parse(text)
+
+            // initialize rows & columns
+            setRows(parsed.rows)
+            setCategorySize(parsed.categorySize)
+
+            // build fresh words grid
+            const flat = parsed.categories
+                .flatMap(cat => cat.wordArray)
+                .map(w => validateWord(decodeURIComponent(w.trim())) ? w : '')
+            const newWords = Array.from({ length: MAX_ROWS }, () =>
+                Array(MAX_COLUMNS).fill('')
+            )
+            for (let r = 0; r < parsed.rows; r++) {
+                for (let c = 0; c < parsed.categorySize; c++) {
+                    const idx = r * parsed.categorySize + c
+                    newWords[r][c] = flat[idx] || ''
+                }
+            }
+            setWords(newWords)
+        } catch (err) {
+            console.error('Failed to parse game data from URL', err)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])  // run only on mount
+
+
+    // --- UPDATE URL AND GAME DEFINITION ---
+    useEffect(() => {
+        const stateObj: GameState = {
+            categories,
+            rows,
+            categorySize,
+        }
+
+        const json = JSON.stringify(stateObj)
+        const b64 = Buffer.from(json, 'utf8').toString('base64')
+
+        setGameDefinition(b64)
+        setSearchParams({ data: b64 }, { replace: true })
+        // update the URL whenever the game state changes
+    }, [categories, rows, categorySize, setSearchParams])
+
+    useEffect(() => {
         try {
             checkGameDefinition({
                 categories,
                 rows,
-                columns,
-                categorySize
+                categorySize,
             })
-            console.log('Game definition is valid')
-        } catch (error) {
-            console.error('Invalid game definition:', error)
+            setValidGame(true)
+        } catch (err) {
+            if (err instanceof Error) console.warn('Invalid game definition:', err.message)
+            else console.warn('Invalid game definition:', err)
+            setValidGame(false)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameDefinition])
 
-        const gameDefinitionObj: GameState = {
-            categories,
-            rows,
-            columns,
-            categorySize
-        }
+    // --- HANDLERS ---
+    const handleTileClick = useCallback((tile: GridTile) => {
+        setEditingTileId(id => (id === tile.id ? undefined : tile.id))
+    }, [])
 
-        const jsonString = JSON.stringify(gameDefinitionObj)
-        const base64String = Buffer.from(jsonString, 'utf-8').toString('base64')
-
-        setGameDefinition(base64String)
-
-        searchParams.set('data', base64String)
-        window.history.replaceState({}, '', `${window.location.pathname}?${searchParams}`)
-    }
-
-    const handleTileClick = (tile: GridTile) => {
-        if (editingTileId === tile.id) {
-            setEditingTileId(undefined)
-        } else {
-            setEditingTileId(tile.id)
-        }
-    }
-
-    const handleTileTextChange = (tileId: string, newText: string) => {
+    const handleTileTextChange = useCallback((tileId: string, text: string) => {
         const [r, c] = tileId.split('-').map(Number)
-        setWords(prevWords =>
-            prevWords.map((row, rowIndex) =>
-                row.map((word, colIndex) =>
-                    rowIndex === r && colIndex === c ? newText : word
-                )
+        setWords(ws =>
+            ws.map((row, ri) =>
+                row.map((w, ci) => (ri === r && ci === c ? text : w))
             )
         )
-    }
+    }, [])
 
-    const copyGameLink = () => {
-        navigator.clipboard.writeText(`http://localhost:3000${PATHS.GAME}?data=${gameDefinition}`)
+    const copyGameLink = useCallback(() => {
+        navigator.clipboard.writeText(
+            `${window.location.origin}${PATHS.GAME}?data=${gameDefinition}`
+        )
         setOpen(true)
-    }
+    }, [gameDefinition])
 
-    const handleCloseSnackbar = (
-        _event: React.SyntheticEvent | Event,
-        reason?: SnackbarCloseReason
-    ) => {
-        if (reason === 'clickaway') return
-        setOpen(false)
-    }
+    const handleCloseSnackbar = useCallback(
+        (_event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
+            if (reason !== 'clickaway') setOpen(false)
+        },
+        []
+    )
 
     return {
-        words,
-        categories,
         rows,
         setRows,
-        columns,
         categorySize,
         setCategorySize,
         grid,
         editingTileId,
-        gameDefinition,
-        open,
         handleTileClick,
         handleTileTextChange,
-        generateGameDefinition,
         copyGameLink,
-        handleCloseSnackbar
+        open,
+        handleCloseSnackbar,
+        gameDefinition,
+        validGame
     }
 }
 
