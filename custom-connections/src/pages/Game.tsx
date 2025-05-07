@@ -25,8 +25,22 @@ const Game = () => {
 
     // track window size so confetti fills the screen
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight })
+    const [showVictoryDialog, setShowVictoryDialog] = useState(false)
 
     const navigate = useNavigate()
+
+    const victory = rowsSolved.every(row => row);
+
+    // Delay the victory dialog
+    useEffect(() => {
+        if (victory) {
+            const timeoutId = setTimeout(() => {
+                setShowVictoryDialog(true)
+            }, 2000)
+
+            return () => clearTimeout(timeoutId)
+        }
+    }, [victory])
 
     useEffect(() => {
         const onResize = () => setSize({ width: window.innerWidth, height: window.innerHeight })
@@ -34,11 +48,9 @@ const Game = () => {
         return () => window.removeEventListener('resize', onResize)
     }, [])
 
-    const victory = rowsSolved.every(row => row);
-
-    if (!validGame) {
-        return <div>Error: bad game configuration!</div>
-    }
+    useEffect(() => {
+        if (!validGame) navigate(PATHS.CREATE + '?data=' + gameDefinition)
+    }, [gameDefinition, navigate, validGame])
 
     return (
         <div className="game-container">
@@ -83,7 +95,7 @@ const Game = () => {
                 />
             )}
             <Dialog
-                open={victory}
+                open={showVictoryDialog}
                 disableEscapeKeyDown
                 aria-labelledby="victory-dialog"
             >

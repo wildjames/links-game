@@ -38,27 +38,31 @@ export function shuffle(array: Array<any>): void {
  * Throws an error if any of the checks fail.
  */
 export function checkGameDefinition(gameDefinition: GameState): void {
+    console.log("Checking game definition", gameDefinition)
+
     // Check all words are unique
     // get a big list of all the words
     const parsedWords = gameDefinition.categories
         .flatMap(category => category.wordArray)
         .map(word => word.trim().toLowerCase())
-        .filter((word: string) => validateWord(word)) // remove empty words
-
-    const uniqueWords = new Set(parsedWords)
-    if (uniqueWords.size !== parsedWords.length) {
-        console.error("Duplicate words found in the list", parsedWords)
-        throw new Error("Duplicate words found in the list")
-    }
 
     // Check all the words are valid
     parsedWords
         .map(word => validateWord(word))
         .forEach((isValid: boolean, index: number) => {
             if (!isValid) {
-                throw new Error(`Invalid word found: ${parsedWords[index]}`)
+                throw new Error(`Invalid word found: "${parsedWords[index]}"`)
             }
         })
+
+    const uniqueWords = new Set(parsedWords)
+    if (uniqueWords.size !== parsedWords.length) {
+        const duplicatedWords = parsedWords.filter((word: string, index: number) => {
+            return parsedWords.indexOf(word) !== index
+        })
+        console.error("Duplicate words found in the list", duplicatedWords)
+        throw new Error("Duplicate words found in the list")
+    }
 
     // each category has a unique name
     const uniqueCategoryNames = new Set(gameDefinition.categories.map((category: WordCategory) => category.categoryName))
@@ -75,11 +79,11 @@ export function checkGameDefinition(gameDefinition: GameState): void {
 
     // we have the right number of categories.
     if (
-        gameDefinition.categories.length !== gameDefinition.columns
+        gameDefinition.categories.length !== gameDefinition.categorySize
         && gameDefinition.categories.length !== gameDefinition.rows) {
         console.error(
             "The number of categories provided does not match the number of rows or columns",
-            gameDefinition.categories.length, gameDefinition.rows, gameDefinition.columns, gameDefinition.categorySize
+            gameDefinition.categories.length, gameDefinition.rows, gameDefinition.categorySize
         )
         throw new Error("The wrong number of categories were provided")
     }

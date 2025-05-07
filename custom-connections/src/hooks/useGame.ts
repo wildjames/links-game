@@ -72,7 +72,7 @@ export const useGame = () => {
                 const index = rowIndex * cols + colIndex;
                 return {
                     id: `${rowIndex}-${colIndex}`,
-                    word: words[index] || `${rowIndex}-${colIndex}`,
+                    word: words[index],
                 };
             })
         );

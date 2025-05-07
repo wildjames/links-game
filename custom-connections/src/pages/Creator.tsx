@@ -29,7 +29,8 @@ const CreatorPage = () => {
         copyGameLink,
         handleCloseSnackbar,
         handleClearWords,
-        validGame
+        validGame,
+        validationError,
     } = useEditor()
 
     return (
@@ -70,6 +71,14 @@ const CreatorPage = () => {
                 editingTileId={editingTileId}
                 onTileTextChange={handleTileTextChange}
             />
+
+            <div className="validation-error">
+                {validGame ? (
+                    <span className="valid">Game OK!</span>
+                ) : (
+                    <span className="invalid">{validationError}</span>
+                )}
+            </div>
 
             {gameDefinition && (
                 <div className='game-links'>

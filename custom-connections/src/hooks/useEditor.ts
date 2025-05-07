@@ -21,6 +21,7 @@ const useEditor = () => {
     const [open, setOpen] = useState(false)
     const [gameDefinition, setGameDefinition] = useState<string>()
     const [validGame, setValidGame] = useState(false)
+    const [validationError, setValidationError] = useState<string | null>(null)
 
     const [searchParams, setSearchParams] = useSearchParams()
 
@@ -105,8 +106,10 @@ const useEditor = () => {
             })
             setValidGame(true)
         } catch (err) {
-            if (err instanceof Error) console.warn('Invalid game definition:', err.message)
-            else console.warn('Invalid game definition:', err)
+            if (err instanceof Error) {
+                console.warn('Invalid game definition:', err.message)
+                setValidationError(err.message)
+            } else console.warn('Invalid game definition:', err)
             setValidGame(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -159,7 +162,8 @@ const useEditor = () => {
         handleCloseSnackbar,
         handleClearWords,
         gameDefinition,
-        validGame
+        validGame,
+        validationError,
     }
 }
 

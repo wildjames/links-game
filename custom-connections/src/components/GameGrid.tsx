@@ -46,7 +46,7 @@ const GameGrid = ({
     solvedRows = [],
     handleTileClick,
 }: GameGridProps) => {
-    let gridRowClasses = grid.map((_, index) => {
+    const gridRowClasses = grid.map((_, index) => {
         return solvedRows[index] ? 'grid-row solved' : 'grid-row'
     })
 
