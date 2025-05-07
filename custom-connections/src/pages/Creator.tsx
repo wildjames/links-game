@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import Button from '@mui/material/Button'
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { Snackbar } from '@mui/material'
 
 import '@styles/Creator.scss'
@@ -27,6 +28,7 @@ const CreatorPage = () => {
         handleTileTextChange,
         copyGameLink,
         handleCloseSnackbar,
+        handleClearWords,
         validGame
     } = useEditor()
 
@@ -51,6 +53,16 @@ const CreatorPage = () => {
                     label="Category Size"
                 />
             </div>
+
+            <Button
+                variant="contained"
+                color="error"
+                onClick={handleClearWords}
+                className="clear-button"
+            >
+                <DeleteForeverIcon />
+                <span className="clear-button-text">Clear</span>
+            </Button>
 
             <CreatorGrid
                 wordGrid={grid}

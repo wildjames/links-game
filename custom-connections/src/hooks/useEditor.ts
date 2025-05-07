@@ -16,13 +16,12 @@ const useEditor = () => {
         Array.from({ length: MAX_ROWS }, () => Array(MAX_COLUMNS).fill(''))
     )
     const [rows, setRows] = useState(4)
-    const [categorySize, setCategorySize] = useState(4)  // ← your “columns”
+    const [categorySize, setCategorySize] = useState(4)
     const [editingTileId, setEditingTileId] = useState<string>()
     const [open, setOpen] = useState(false)
     const [gameDefinition, setGameDefinition] = useState<string>()
     const [validGame, setValidGame] = useState(false)
 
-    // search-param helpers
     const [searchParams, setSearchParams] = useSearchParams()
 
     // --- DERIVED GRID ---
@@ -56,7 +55,7 @@ const useEditor = () => {
             const text = Buffer.from(payload, 'base64').toString('utf8')
             const parsed: GameState = JSON.parse(text)
 
-            // initialize rows & columns
+            // initialize rows and columns
             setRows(parsed.rows)
             setCategorySize(parsed.categorySize)
 
@@ -110,7 +109,7 @@ const useEditor = () => {
             else console.warn('Invalid game definition:', err)
             setValidGame(false)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameDefinition])
 
     // --- HANDLERS ---
@@ -141,6 +140,11 @@ const useEditor = () => {
         []
     )
 
+    const handleClearWords = () => {
+        setWords(Array.from({ length: MAX_ROWS }, () => Array(MAX_COLUMNS).fill('')))
+        setEditingTileId(undefined)
+    }
+
     return {
         rows,
         setRows,
@@ -153,6 +157,7 @@ const useEditor = () => {
         copyGameLink,
         open,
         handleCloseSnackbar,
+        handleClearWords,
         gameDefinition,
         validGame
     }
