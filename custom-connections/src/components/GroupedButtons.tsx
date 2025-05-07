@@ -35,12 +35,12 @@ const GroupedButtons = ({
         <div className="grouped-buttons">
             <label className="button-label">{label}</label>
             <ButtonGroup size="small" aria-label={`${label} button group`}>
-                <Button onClick={handleIncrement} disabled={counter >= max}>
-                    +
-                </Button>
-                <Button disabled>{counter}</Button>
                 <Button onClick={handleDecrement} disabled={counter <= min}>
                     -
+                </Button>
+                <Button disabled>{counter}</Button>
+                <Button onClick={handleIncrement} disabled={counter >= max}>
+                    +
                 </Button>
             </ButtonGroup>
         </div>
