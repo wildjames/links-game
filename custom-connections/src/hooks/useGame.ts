@@ -23,6 +23,7 @@ export const useGame = () => {
     const [validGame, setValidGame] = useState(false);
 
     const [searchParams] = useSearchParams();
+    const [gameDefinition, setGameDefinition] = useState<string | null>(null);
 
     // On mount, parse the query string to update the game definition.
     useEffect(() => {
@@ -32,6 +33,7 @@ export const useGame = () => {
             setValidGame(false);
             return;
         }
+        setGameDefinition(payload);
 
         try {
             const data = Buffer.from(payload, 'base64').toString('utf-8');
@@ -178,6 +180,7 @@ export const useGame = () => {
         oneAway,
         rowsSolved,
         validGame,
+        gameDefinition,
         handleTileClick,
         handleSubmit,
         handleCloseOneAway,

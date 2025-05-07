@@ -1,7 +1,13 @@
-import { Button, Dialog, DialogContent } from '@mui/material';
-import GameGrid from '@components/GameGrid';
-import { useGame } from '@hooks/useGame';
-import '@styles/Game.scss';
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+import { Button, Dialog, DialogActions, DialogContent } from '@mui/material'
+import ReactConfetti from 'react-confetti'
+
+import GameGrid from '@components/GameGrid'
+import { useGame } from '@hooks/useGame'
+import '@styles/Game.scss'
+import { PATHS } from '@constants/environment'
 
 const Game = () => {
     const {
@@ -11,13 +17,27 @@ const Game = () => {
         oneAway,
         rowsSolved,
         validGame,
+        gameDefinition,
         handleTileClick,
         handleSubmit,
         handleCloseOneAway,
-    } = useGame();
+    } = useGame()
+
+    // track window size so confetti fills the screen
+    const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight })
+
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        const onResize = () => setSize({ width: window.innerWidth, height: window.innerHeight })
+        window.addEventListener('resize', onResize)
+        return () => window.removeEventListener('resize', onResize)
+    }, [])
+
+    const victory = rowsSolved.every(row => row);
 
     if (!validGame) {
-        return <div>Error: bad game configuration!</div>;
+        return <div>Error: bad game configuration!</div>
     }
 
     return (
@@ -53,8 +73,38 @@ const Game = () => {
                 </DialogContent>
             </Dialog>
 
-        </div >
-    );
-};
+            {/* confetti should render behind the dialog walls */}
+            {victory && (
+                <ReactConfetti
+                    width={size.width}
+                    height={size.height}
+                    recycle={true}
+                    numberOfPieces={1000}
+                />
+            )}
+            <Dialog
+                open={victory}
+                disableEscapeKeyDown
+                aria-labelledby="victory-dialog"
+            >
+                <DialogContent dividers>
+                    <div style={{ textAlign: 'center', padding: '2rem 3rem' }}>
+                        <h2 id="victory-dialog">🎉 You did it! 🎉</h2>
+                        <p>All categories have been solved.</p>
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={() => navigate(PATHS.CREATE + '?data=' + gameDefinition)}
+                        color="primary"
+                    >
+                        Make your own game?
+                    </Button>
+                </DialogActions>
+            </Dialog >
 
-export default Game;
+        </div >
+    )
+}
+
+export default Game
