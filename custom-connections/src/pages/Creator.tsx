@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 import Button from '@mui/material/Button'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { Snackbar } from '@mui/material'
+import { Paper, Snackbar } from '@mui/material'
 
 import '@styles/Creator.scss'
 
@@ -72,38 +72,44 @@ const CreatorPage = () => {
                 onTileTextChange={handleTileTextChange}
             />
 
-            <div className="validation-error">
+            <Paper className="validation-message">
                 {validGame ? (
-                    <span className="valid">Game OK!</span>
+                    <div
+                        className="content"
+                    >
+                        Game OK!
+                    </div>
                 ) : (
-                    <span className="invalid">{validationError}</span>
+                    <div
+                        className="content"
+                    >
+                        {validationError}
+                    </div>
                 )}
-            </div>
+            </Paper>
 
             {gameDefinition && (
                 <div className='game-links'>
-                    <div className="controls copy-game-link">
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={copyGameLink}
-                            disabled={!validGame}
-                        >
-                            Copy Game Link
-                        </Button>
-                    </div>
-                    <div className="controls open-game-link">
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            component={Link}
-                            to={`${PATHS.GAME}?data=${gameDefinition}`}
-                            target="_blank"
-                            disabled={!validGame}
-                        >
-                            Go to game (new tab)
-                        </Button>
-                    </div>
+                    <Button
+                        className="controls copy-game-link"
+                        variant="contained"
+                        color="primary"
+                        onClick={copyGameLink}
+                        disabled={!validGame}
+                    >
+                        Copy Game Link
+                    </Button>
+                    <Button
+                        className="controls open-game-link"
+                        variant="contained"
+                        color="secondary"
+                        component={Link}
+                        to={`${PATHS.GAME}?data=${gameDefinition}`}
+                        target="_blank"
+                        disabled={!validGame}
+                    >
+                        Go to game (new tab)
+                    </Button>
                 </div>
             )}
 

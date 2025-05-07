@@ -17,8 +17,35 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    margin: 1rem;
+    gap: 2rem;
+    width: fit-content;
 }
 
 .clear-button-text {
     padding-left: 1rem;
 }
+
+.copy-game-link {
+    width: 15rem;
+}
+
+.open-game-link {
+    width: 15rem;
+}
+
+.validation-message {
+    margin: 1rem;
+    padding: 0.5rem;
+    min-width: 15%;
+    align-items: center;
+    justify-content: center;
+}
+
+.validation-message .content {
+    margin: 0rem;
+    padding: 0.5rem;
+    text-align: center;
+    justify-content: center;
+}
+
