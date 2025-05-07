@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import Button from '@mui/material/Button'
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import { Paper, Snackbar } from '@mui/material'
 
 import '@styles/Creator.scss'

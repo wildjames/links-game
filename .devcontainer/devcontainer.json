@@ -10,7 +10,14 @@
     ],
     "mounts": [
         "source=${env:HOME}${env:USERPROFILE}/.ssh,target=/home/node/.ssh,type=bind"
-    ]
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint"
+            ]
+        }
+    }
     // Use 'postCreateCommand' to run commands after the container is created.
     // "postCreateCommand": "uname -a",
     // Configure tool-specific properties.

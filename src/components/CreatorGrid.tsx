@@ -41,8 +41,8 @@ const CreatorGrid = ({
                                     autoFocus
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            e.currentTarget.blur();
+                                            e.preventDefault()
+                                            e.currentTarget.blur()
                                         }
                                     }}
                                 />

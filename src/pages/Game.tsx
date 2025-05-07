@@ -29,7 +29,7 @@ const Game = () => {
 
     const navigate = useNavigate()
 
-    const victory = rowsSolved.every(row => row);
+    const victory = rowsSolved.every(row => row)
 
     // Delay the victory dialog
     useEffect(() => {

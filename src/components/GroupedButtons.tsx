@@ -1,7 +1,7 @@
-import React from "react";
-import { Button, ButtonGroup } from "@mui/material";
+import React from "react"
+import { Button, ButtonGroup } from "@mui/material"
 
-import "@styles/GroupedButtons.scss";
+import "@styles/GroupedButtons.scss"
 
 interface GroupedButtonsProps {
     counter: number;
@@ -21,15 +21,15 @@ const GroupedButtons = ({
 
     const handleIncrement = () => {
         if (counter < max) {
-            setCounter(counter + 1);
+            setCounter(counter + 1)
         }
-    };
+    }
 
     const handleDecrement = () => {
         if (counter > min) {
-            setCounter(counter - 1);
+            setCounter(counter - 1)
         }
-    };
+    }
 
     return (
         <div className="grouped-buttons">
@@ -44,7 +44,7 @@ const GroupedButtons = ({
                 </Button>
             </ButtonGroup>
         </div>
-    );
-};
+    )
+}
 
-export default GroupedButtons;
+export default GroupedButtons

@@ -2,7 +2,7 @@ import { WordCategory, GameState } from '@utils/commonTypes'
 
 // TODO: Profanity checking? Stuff like that?
 export const validateWord = (word: string): boolean => {
-    return !!word && word.length > 0;
+    return !!word && word.length > 0
 }
 
 /**
@@ -13,7 +13,7 @@ export const validateWord = (word: string): boolean => {
  * @returns true if every word in categoryWordArray exists in words, false otherwise.
  */
 export function checkCategoryContainsWords(categoryWordArray: string[], words: string[]): boolean {
-    return categoryWordArray.every(word => words.includes(word));
+    return categoryWordArray.every(word => words.includes(word))
 }
 
 
@@ -25,10 +25,10 @@ export function checkCategoryContainsWords(categoryWordArray: string[], words: s
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function shuffle(array: Array<any>): void {
     for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
+        const j = Math.floor(Math.random() * (i + 1))
+        const temp = array[i]
+        array[i] = array[j]
+        array[j] = temp
     }
 }
 

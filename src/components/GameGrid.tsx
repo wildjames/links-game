@@ -5,7 +5,7 @@ import "@styles/Grid.scss"
 
 
 export function ShakeSelectedTiles() {
-    const tiles = document.querySelectorAll('.tile.selected');
+    const tiles = document.querySelectorAll('.tile.selected')
 
     tiles.forEach((el) => {
         el.animate(
@@ -20,8 +20,8 @@ export function ShakeSelectedTiles() {
                 easing: 'linear',
                 iterations: 2
             }
-        );
-    });
+        )
+    })
 }
 
 export interface GameGridTile {
