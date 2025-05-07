@@ -6,10 +6,9 @@ import { Buffer } from 'buffer'
 import { SnackbarCloseReason } from '@mui/material'
 
 import { PATHS } from '@constants/environment'
-import { GameState, WordCategory } from '@utils/commonTypes'
+import { GameState, GridTile, WordCategory } from '@utils/commonTypes'
 import { checkGameDefinition, validateWord } from '@utils/utils'
 
-import { CreatorGridTile } from '@components/CreatorGrid'
 
 const MAX_ROWS = 10
 const MAX_COLUMNS = 10
@@ -24,7 +23,7 @@ const useEditor = () => {
     const [rows, setRows] = useState(4)
     const [columns, setColumns] = useState(4)
     const [categorySize, setCategorySize] = useState(4)
-    const [grid, setGrid] = useState<CreatorGridTile[][]>([])
+    const [grid, setGrid] = useState<GridTile[][]>([])
     const [editingTileId, setEditingTileId] = useState<string | undefined>(undefined)
     const [gameDefinition, setGameDefinition] = useState<string | undefined>(undefined)
     const [open, setOpen] = useState(false)
@@ -130,7 +129,7 @@ const useEditor = () => {
         window.history.replaceState({}, '', `${window.location.pathname}?${searchParams}`)
     }
 
-    const handleTileClick = (tile: CreatorGridTile) => {
+    const handleTileClick = (tile: GridTile) => {
         if (editingTileId === tile.id) {
             setEditingTileId(undefined)
         } else {

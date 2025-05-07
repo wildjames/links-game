@@ -9,3 +9,9 @@ export interface GameState {
     columns: number
     categorySize: number
 }
+
+
+export interface GridTile {
+    id: string
+    word: string
+}

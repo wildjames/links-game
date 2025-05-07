@@ -1,14 +1,12 @@
 import Tile from "./Tile"
 import "@styles/Grid.scss"
 
-export interface CreatorGridTile {
-    id: string
-    word: string
-}
+import { GridTile } from "@utils/commonTypes"
+
 
 export interface CreatorGridProps {
-    wordGrid: CreatorGridTile[][]
-    handleTileClick: (tile: CreatorGridTile) => void
+    wordGrid: GridTile[][]
+    handleTileClick: (tile: GridTile) => void
 
     // id of the tile currently being edited.
     editingTileId?: string
