@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Buffer } from 'buffer';
 
@@ -19,6 +19,7 @@ export const useGame = () => {
     const [grid, setGrid] = useState<GameGridTile[][]>([]);
     const [selectedTiles, setSelectedTiles] = useState<string[]>([]);
     const [rowsSolved, setRowsSolved] = useState<boolean[]>([]);
+    const [oneAway, setOneAway] = useState(false);
     const [validGame, setValidGame] = useState(false);
 
     const [searchParams] = useSearchParams();
@@ -91,6 +92,17 @@ export const useGame = () => {
         });
     };
 
+    // Close the one away dialog after a short delay
+    useEffect(() => {
+        if (oneAway) {
+            const timer = setTimeout(() => {
+                setOneAway(false);
+            }, 10000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [oneAway]);
+
     const handleSubmit = () => {
         const matchingCategory = categories.find(category =>
             selectedTiles.every(word => category.wordArray.includes(word))
@@ -135,9 +147,27 @@ export const useGame = () => {
 
             setSelectedTiles([]);
         } else {
+            // Not a match
+
+            // Check if the user is one away from a match
+            const almost = categories.find(cat => {
+                const correctCount = selectedTiles.filter(word =>
+                    cat.wordArray.includes(word)
+                ).length;
+                return correctCount === maxSelections - 1;
+            });
+
+            if (almost) {
+                setOneAway(true);
+            }
+
             ShakeSelectedTiles();
         }
     };
+
+    const handleCloseOneAway = useCallback(() => {
+        setOneAway(false);
+    }, []);
 
     return {
         rows,
@@ -145,9 +175,11 @@ export const useGame = () => {
         maxSelections,
         grid,
         selectedTiles,
+        oneAway,
         rowsSolved,
         validGame,
         handleTileClick,
         handleSubmit,
+        handleCloseOneAway,
     };
 };

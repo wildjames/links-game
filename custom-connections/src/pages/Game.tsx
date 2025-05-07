@@ -1,4 +1,4 @@
-import { Button } from '@mui/material';
+import { Button, Dialog, DialogContent } from '@mui/material';
 import GameGrid from '@components/GameGrid';
 import { useGame } from '@hooks/useGame';
 import '@styles/Game.scss';
@@ -8,10 +8,12 @@ const Game = () => {
         maxSelections,
         grid,
         selectedTiles,
+        oneAway,
         rowsSolved,
         validGame,
         handleTileClick,
         handleSubmit,
+        handleCloseOneAway,
     } = useGame();
 
     if (!validGame) {
@@ -37,7 +39,21 @@ const Game = () => {
             >
                 Submit
             </Button>
-        </div>
+
+            <Dialog
+                open={oneAway}
+                onClose={handleCloseOneAway}
+                aria-labelledby="one-away-dialog"
+                className="one-away-dialog"
+            >
+                <DialogContent dividers>
+                    <div className="one-away-text">
+                        <h2 id="one-away-dialog">One away…</h2>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+        </div >
     );
 };
 
