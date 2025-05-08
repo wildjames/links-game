@@ -1,5 +1,7 @@
 TODO:
   - Allow creators to NAME the categories!
+  - Mobile layout
+  - Needs to have "lives"
   - Have a small database, that can link a short UUID to a game definition string, so that we can send minified links
   - Allow public puzzles, and give a "random jimmylinks" button?
 

@@ -5,16 +5,16 @@
   display: flex;
   flex-direction: row;
   width: fit-content;
-  padding: 10px;
-  border-radius: 10px;
-  gap: 30px;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  gap: 1.5rem;
 }
 
 .grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 20px;
+  gap: 0.5rem;
+  padding: 1rem;
 }
 
 .grid-row.solved {
@@ -35,4 +35,21 @@
 }
 .grid-row.solved:nth-child(5n) {
   background-color: $tomato;
+}
+
+
+@media (max-width: 640px) {
+  .grid {
+    width: 100%;
+    padding: 0.5rem;
+  }
+
+  .grid-row {
+    display: grid;
+    width: calc(100% - 0.5rem);
+    padding: 0.25rem;
+    gap: 0.25rem;
+    /* create one column per tile, each taking an equal fraction of the row */
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  }
 }
