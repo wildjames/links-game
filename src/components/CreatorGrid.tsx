@@ -30,7 +30,7 @@ const CreatorGrid = ({
                             // Editing mode, the tile is an input box
                             <div>
                                 <input
-                                    className="tile"
+                                    className="tile selected"
                                     key={tile.id}
                                     data-testid={tile.id}
                                     type="text"
