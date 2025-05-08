@@ -14,8 +14,17 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "dbaeumer.vscode-eslint"
+                "dbaeumer.vscode-eslint",
+                "ms-azuretools.vscode-docker",
+                "docker.docker"
             ]
+        }
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+            "version": "latest",
+            "moby": "true",
+            "installDockerBuildx": "true"
         }
     }
     // Use 'postCreateCommand' to run commands after the container is created.
