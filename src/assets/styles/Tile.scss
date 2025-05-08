@@ -1,6 +1,7 @@
 .tile {
   width: 100px;
   height: 100px;
+  aspect-ratio: 1;
   border-radius: 10px;
   border: 4px solid #dbe0df;
   outline: none;
@@ -13,6 +14,14 @@
   user-select: none;
   transition: background-color 0.5s ease-in-out;
   text-transform: capitalize;
+  container-type: inline-size;
+}
+
+.tile .tile-text {
+  margin: 0;
+  line-height: 1;
+  line-break: normal;
+  display: inline-block;
 }
 
 .tile.selected {
@@ -41,18 +50,9 @@
   .tile {
     /* fill its grid-cell and stay square */
     width: calc(100% - 0.8rem);
-    height: calc(100% - 0.8rem);
-    /* maintain aspect ratio */
-    aspect-ratio: 1;
+    height: auto;
     border-width: 2px;
     border-radius: 0.5rem;
     padding: 0.25rem;
-  }
-
-  .tile .tile-text {
-    line-height: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 }
