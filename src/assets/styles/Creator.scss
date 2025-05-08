@@ -22,6 +22,17 @@
     width: fit-content;
 }
 
+@media (max-width: 640px) {
+    .controls {
+        gap: 1rem;
+    }
+
+    .game-links {
+        flex-direction: column-reverse;
+        gap: 1rem;
+    }
+}
+
 .clear-button-text {
     padding-left: 1rem;
 }
