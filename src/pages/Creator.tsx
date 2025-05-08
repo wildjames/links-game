@@ -35,8 +35,12 @@ const CreatorPage = () => {
 
     return (
         <div className="creator-page">
-            <h1>Links</h1>
-            <h2>Game Creator</h2>
+            <h1>Jimmylinks Editor</h1>
+            <span>
+                <i>
+                    Click or a tile to change its word
+                </i>
+            </span>
 
             <div className="controls">
                 <GroupedButtons

@@ -16,6 +16,11 @@
 }
 
 .tile.selected {
+  background-color: #00ffd5;
+  transition: ease-in-out 700ms;
+}
+
+.tile.editing {
   border: 4px solid #156666;
   transition: ease-in-out 700ms;
   font-style: italic;

@@ -1,6 +1,6 @@
 export const PATHS = {
     GAME: "/game",
-    CREATE: "",
+    CREATE: "/",
 }
 
 export const ENV_CONFIG = {}

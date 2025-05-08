@@ -52,9 +52,14 @@ const Game = () => {
         if (!validGame) navigate(PATHS.CREATE + '?data=' + gameDefinition)
     }, [gameDefinition, navigate, validGame])
 
+    const handleCloseVictoryDialog = () => {
+        setShowVictoryDialog(false)
+        navigate(PATHS.CREATE + '?data=' + gameDefinition)
+    }
+
     return (
         <div className="game-container">
-            <h1>Links</h1>
+            <h1>Jimmylinks</h1>
             <GameGrid
                 wordGrid={grid}
                 selectedTiles={selectedTiles}
@@ -107,7 +112,7 @@ const Game = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        onClick={() => navigate(PATHS.CREATE + '?data=' + gameDefinition)}
+                        onClick={handleCloseVictoryDialog}
                         color="primary"
                     >
                         Make your own game?
