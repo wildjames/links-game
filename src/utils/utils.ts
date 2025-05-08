@@ -46,6 +46,11 @@ export function checkGameDefinition(gameDefinition: GameState): void {
         .flatMap(category => category.wordArray)
         .map(word => word.trim().toLowerCase())
 
+    // If any words are empty, throw an error
+    if (parsedWords.some(word => word.length === 0)) {
+        throw new Error("Empty words are not allowed")
+    }
+
     // Check all the words are valid
     parsedWords
         .map(word => validateWord(word))
