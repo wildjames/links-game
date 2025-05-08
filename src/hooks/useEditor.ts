@@ -83,6 +83,13 @@ const useEditor = () => {
 
     // --- UPDATE URL AND GAME DEFINITION ---
     useEffect(() => {
+        // If all categories are empty, don't update the URL
+        if (categories.every(cat => cat.wordArray.every(word => word === ''))) {
+            setGameDefinition(undefined)
+            setSearchParams({}, { replace: true })
+            return
+        }
+
         const stateObj: GameState = {
             categories,
             rows,

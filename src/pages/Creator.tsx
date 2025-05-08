@@ -76,7 +76,7 @@ const CreatorPage = () => {
                 onTileTextChange={handleTileTextChange}
             />
 
-            <Paper className="validation-message">
+            <Paper className={`validation-message ${validGame ? 'valid' : 'invalid'}`}>
                 {validGame ? (
                     <div
                         className="content"

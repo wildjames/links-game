@@ -49,3 +49,10 @@
     justify-content: center;
 }
 
+.validation-message.invalid {
+    background-color: #ff000048;
+}
+
+.validation-message.valid {
+    background-color: #2ff0396b;
+}
