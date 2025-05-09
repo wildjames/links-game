@@ -107,14 +107,24 @@ const Game = () => {
                 aria-labelledby="victory-dialog"
             >
                 <DialogContent dividers>
-                    <div style={{ textAlign: 'center', padding: '2rem 3rem' }}>
+                    <div className="victory-text">
                         <h2 id="victory-dialog">🎉 You did it! 🎉</h2>
                         <p>All categories have been solved.</p>
                     </div>
                 </DialogContent>
                 <DialogActions>
                     <Button
+                        onClick={() => {
+                            setShowVictoryDialog(false)
+                        }}
+                        variant="contained"
+                        color="secondary"
+                    >
+                        Back to game
+                    </Button>
+                    <Button
                         onClick={handleCloseVictoryDialog}
+                        variant="contained"
                         color="primary"
                     >
                         Make your own game?

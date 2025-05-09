@@ -1,4 +1,4 @@
-import { Input } from "@mui/material"
+import { TextField } from "@mui/material"
 import Tile from "./Tile"
 import "@styles/Grid.scss"
 
@@ -38,10 +38,16 @@ const CreatorGrid = ({
             {grid.map((row, rowIndex) => (
                 <div className={gridRowClass} key={rowIndex}>
                     {/* Category name */}
-                    <Input
+                    <TextField
                         value={categoryNames[rowIndex]}
                         onChange={(e => handleUpdateCategoryName(rowIndex, e.target.value))}
+                        type="text"
                         placeholder="Category name"
+                        size="small"
+                        sx={{
+                            marginBottom: '0.5rem',
+                            marginTop: '0.5rem',
+                        }}
                     />
 
                     <div className="grid-row tiles">
