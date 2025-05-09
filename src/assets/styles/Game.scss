@@ -3,7 +3,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 1rem;
+  gap: 2rem;
+}
+
+.game-container .game-title {
+    margin: 0;
 }
 
 .one-away-dialog {

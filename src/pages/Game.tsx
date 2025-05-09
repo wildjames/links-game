@@ -62,7 +62,7 @@ const Game = () => {
 
     return (
         <div className="game-container">
-            <h1>Jimmylinks</h1>
+            <h1 className="game-title">Jimmylinks</h1>
             <GameGrid
                 wordGrid={grid}
                 selectedTiles={selectedTiles}
