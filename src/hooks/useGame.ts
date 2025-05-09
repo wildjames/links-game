@@ -18,7 +18,7 @@ export const useGame = () => {
 
     const [grid, setGrid] = useState<GameGridTile[][]>([])
     const [selectedTiles, setSelectedTiles] = useState<string[]>([])
-    const [rowsSolved, setRowsSolved] = useState<boolean[]>([])
+    const [rowsSolved, setRowsSolved] = useState<string[]>([])
     const [oneAway, setOneAway] = useState(false)
     const [validGame, setValidGame] = useState(true)
 
@@ -49,7 +49,7 @@ export const useGame = () => {
             shuffle(parsedWords)
 
             setWords(parsedWords)
-            setRowsSolved(new Array(parsedData.rows).fill(false))
+            setRowsSolved([])
             setCategories(parsedData.categories)
 
             setRows(parsedData.rows)
@@ -143,7 +143,7 @@ export const useGame = () => {
 
             setRowsSolved(prevRowsSolved => {
                 const newRowsSolved = [...prevRowsSolved]
-                newRowsSolved[numAlreadySolved] = true
+                newRowsSolved[numAlreadySolved] = matchingCategory.categoryName
                 return newRowsSolved
             })
 

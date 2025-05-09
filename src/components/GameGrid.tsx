@@ -35,9 +35,8 @@ export interface GameGridProps {
 
     // Any selected tiles
     selectedTiles?: string[]
-    // Optional: The rows that are solved already will be highlighted.
-    // If not provided, all rows will be treated as unsolved.
-    solvedRows?: boolean[]
+    // Rows that are solved. This is an array of solved category names, in order.
+    solvedRows: string[]
 }
 
 const GameGrid = ({
@@ -52,24 +51,28 @@ const GameGrid = ({
 
     // We need a flattened version of the grid to use as a flipKey.
     const flatGrid = grid.flat().map(tile => tile.word).join('')
-    console.log("Grid render", grid)
 
     return (
         <Flipper flipKey={flatGrid} className="grid">
             {grid.map((row, rowIndex) => (
                 <div className={gridRowClasses[rowIndex]} key={rowIndex}>
-                    {row.map(tile =>
-                        <Flipped key={tile.id} flipId={tile.id}>
-                            <div>
-                                <Tile
-                                    key={tile.id}
-                                    word={tile.word}
-                                    selected={selectedTiles.includes(tile.word)}
-                                    onClick={() => handleTileClick(tile)}
-                                />
-                            </div>
-                        </Flipped>
-                    )}
+                    {/* Category name, if the row is solved */}
+                    {solvedRows[rowIndex] && <div className="category-name">{solvedRows[rowIndex]}</div>}
+                    {/* The tiles in the row */}
+                    <div className="grid-row tiles">
+                        {row.map(tile =>
+                            <Flipped key={tile.id} flipId={tile.id}>
+                                <div>
+                                    <Tile
+                                        key={tile.id}
+                                        word={tile.word}
+                                        selected={selectedTiles.includes(tile.word)}
+                                        onClick={() => handleTileClick(tile)}
+                                    />
+                                </div>
+                            </Flipped>
+                        )}
+                    </div>
                 </div>
             ))}
         </Flipper>

@@ -15,6 +15,9 @@ const useEditor = () => {
     const [words, setWords] = useState<string[][]>(
         Array.from({ length: MAX_ROWS }, () => Array(MAX_COLUMNS).fill(''))
     )
+    const [categoryNames, setCategoryNames] = useState<string[]>(
+        Array.from({ length: MAX_ROWS }, () => '')
+    )
     const [rows, setRows] = useState(4)
     const [categorySize, setCategorySize] = useState(4)
     const [editingTileId, setEditingTileId] = useState<string>()
@@ -38,14 +41,14 @@ const useEditor = () => {
     // --- DERIVED CATEGORIES ---
     const categories = useMemo<WordCategory[]>(() => {
         return Array.from({ length: rows }, (_, r) => ({
-            categoryName: `Category ${r + 1}`,
+            categoryName: categoryNames[r] || 'Category ' + (r + 1),
             wordArray: words[r].slice(0, categorySize)
                 .map(w => {
                     const decoded = decodeURIComponent(w.trim())
                     return validateWord(decoded) ? decoded : ''
                 }),
         }))
-    }, [words, rows, categorySize])
+    }, [words, rows, categorySize, categoryNames])
 
     // --- SYNC URL AND STATE (once) ---
     useEffect(() => {
@@ -74,6 +77,7 @@ const useEditor = () => {
                 }
             }
             setWords(newWords)
+            setCategoryNames(parsed.categories.map(cat => cat.categoryName))
         } catch (err) {
             console.error('Failed to parse game data from URL', err)
         }
@@ -102,7 +106,7 @@ const useEditor = () => {
         setGameDefinition(b64)
         setSearchParams({ data: b64 }, { replace: true })
         // update the URL whenever the game state changes
-    }, [categories, rows, categorySize, setSearchParams])
+    }, [categories, rows, categorySize, categoryNames, setSearchParams])
 
     useEffect(() => {
         try {
@@ -160,6 +164,8 @@ const useEditor = () => {
         setRows,
         categorySize,
         setCategorySize,
+        categoryNames,
+        setCategoryNames,
         grid,
         editingTileId,
         handleTileClick,

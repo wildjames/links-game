@@ -20,6 +20,8 @@ const CreatorPage = () => {
         setRows,
         categorySize,
         setCategorySize,
+        categoryNames,
+        setCategoryNames,
         grid,
         editingTileId,
         gameDefinition,
@@ -74,6 +76,8 @@ const CreatorPage = () => {
                 handleTileClick={handleTileClick}
                 editingTileId={editingTileId}
                 onTileTextChange={handleTileTextChange}
+                categoryNames={categoryNames}
+                setCategoryNames={setCategoryNames}
             />
 
             <Paper className={`validation-message ${validGame ? 'valid' : 'invalid'}`}>

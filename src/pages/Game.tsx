@@ -26,10 +26,13 @@ const Game = () => {
     // track window size so confetti fills the screen
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight })
     const [showVictoryDialog, setShowVictoryDialog] = useState(false)
+    const [victory, setVictory] = useState(false)
 
     const navigate = useNavigate()
 
-    const victory = rowsSolved.every(row => row)
+    useEffect(() => {
+        setVictory(rowsSolved.length === grid.length)
+    }, [grid.length, rowsSolved.length])
 
     // Delay the victory dialog
     useEffect(() => {
@@ -90,7 +93,6 @@ const Game = () => {
                 </DialogContent>
             </Dialog>
 
-            {/* confetti should render behind the dialog walls */}
             {victory && (
                 <ReactConfetti
                     width={size.width}
