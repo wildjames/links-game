@@ -1,19 +1,20 @@
 use axum::{
-    Extension,
     extract::{Json, Path},
+    http::StatusCode,
     routing::{get, post},
-    Router,
+    Extension,
+    Router
 };
 use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlPoolOptions;
 use std::env;
 use tower_http::services::ServeDir;
 use uuid::Uuid;
+use sqlx::Row;
 
 #[derive(Serialize, Deserialize)]
 struct MyData {
-    foo: String,
-    bar: i32,
+    game_encoding: String
 }
 
 #[derive(Serialize)]
@@ -22,23 +23,37 @@ struct Created {
 }
 
 async fn create(
-    Extension(_db): Extension<sqlx::MySqlPool>,
-    Json(_payload): Json<MyData>,
+    Extension(db): Extension<sqlx::MySqlPool>,
+    Json(payload): Json<MyData>,
 ) -> Json<Created> {
-    // Doesn't do anything just yet.
     let id = Uuid::new_v4();
+    sqlx::query("INSERT INTO items (id, game_encoding) VALUES (?, ?)")
+        .bind(id.to_string())
+        .bind(payload.game_encoding)
+        .execute(&db)
+        .await
+        .expect("DB insert failed");
     Json(Created { id })
 }
 
 async fn fetch(
-    Extension(_db): Extension<sqlx::MySqlPool>,
-    Path(_id): Path<Uuid>,
-) -> Json<MyData> {
-    // Return some static dummy data for now
-    Json(MyData {
-        foo: "bar".into(),
-        bar: 42,
-    })
+    Extension(db): Extension<sqlx::MySqlPool>,
+    Path(id): Path<Uuid>,
+) -> Result<Json<MyData>, StatusCode> {
+    // run the query, propagating any DB errors as a 500
+    let row_opt = sqlx::query("SELECT game_encoding FROM items WHERE id = ?")
+        .bind(id.to_string())
+        .fetch_optional(&db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // if we got a row, return it; otherwise return 404
+    if let Some(row) = row_opt {
+        let game_encoding: String = row.get("game_encoding");
+        Ok(Json(MyData { game_encoding }))
+    } else {
+        Err(StatusCode::NOT_FOUND)
+    }
 }
 
 #[tokio::main]
@@ -71,6 +86,12 @@ async fn main() {
         .await
         .expect("Failed to connect to MySQL");
 
+    // Run migrations
+    sqlx::migrate!("./migrations")
+        .run(&db_pool)
+        .await
+        .expect("Failed to run migrations");
+
     // routes
     let api = Router::new()
         .route("/create", post(create))
@@ -82,7 +103,7 @@ async fn main() {
         // Serve static files for the frontend
         .nest_service("/index", ServeDir::new("../dist"));
 
-    // Run the server with hyper, listening on port 3000
+    // Run the server with tokio, listening on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
     // Run
