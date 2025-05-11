@@ -3,7 +3,7 @@ TODO:
     - [x] API logic and database done.
     - [ ] render a loading spinner whilst the backend request is going through
     - [ ] Deployment of API
-    - [ ] Integrate API into frontend (only in the buttons that get actively clicked!!)
+    - [x] Integrate API into frontend (only in the buttons that get actively clicked!!)
   - Needs to have "lives"
   - Allow public puzzles, and give a "random jimmylinks" button?
 
