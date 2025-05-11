@@ -1,3 +1,9 @@
+mod game_encoder;
+
+
+use game_encoder::{GameState, encode, validate};
+
+// External crates
 use axum::{
     extract::{Json, Path},
     http::StatusCode,
@@ -13,7 +19,7 @@ use uuid::Uuid;
 use sqlx::Row;
 
 #[derive(Serialize, Deserialize)]
-struct MyData {
+struct FetchIDData {
     game_encoding: String
 }
 
@@ -24,22 +30,34 @@ struct Created {
 
 async fn create(
     Extension(db): Extension<sqlx::MySqlPool>,
-    Json(payload): Json<MyData>,
-) -> Json<Created> {
+    Json(state): Json<GameState>,
+) -> Result<Json<Created>, (StatusCode, String)> {
+    // validate the GameState
+    if let Err(err_msg) = validate(&state) {
+        // 400 Bad Request with a descriptive message
+        return Err((StatusCode::BAD_REQUEST, err_msg));
+    }
+
+    // encode the GameState to base64
+    let encoded = encode(&state)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    // insert into DB
     let id = Uuid::new_v4();
     sqlx::query("INSERT INTO items (id, game_encoding) VALUES (?, ?)")
         .bind(id.to_string())
-        .bind(payload.game_encoding)
+        .bind(&encoded)
         .execute(&db)
         .await
-        .expect("DB insert failed");
-    Json(Created { id })
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    Ok(Json(Created { id }))
 }
 
 async fn fetch(
     Extension(db): Extension<sqlx::MySqlPool>,
     Path(id): Path<Uuid>,
-) -> Result<Json<MyData>, StatusCode> {
+) -> Result<Json<FetchIDData>, StatusCode> {
     // run the query, propagating any DB errors as a 500
     let row_opt = sqlx::query("SELECT game_encoding FROM items WHERE id = ?")
         .bind(id.to_string())
@@ -50,7 +68,7 @@ async fn fetch(
     // if we got a row, return it; otherwise return 404
     if let Some(row) = row_opt {
         let game_encoding: String = row.get("game_encoding");
-        Ok(Json(MyData { game_encoding }))
+        Ok(Json(FetchIDData { game_encoding }))
     } else {
         Err(StatusCode::NOT_FOUND)
     }
