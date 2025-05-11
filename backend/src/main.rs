@@ -14,7 +14,6 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlPoolOptions;
 use std::env;
-use tower_http::services::ServeDir;
 use uuid::Uuid;
 use sqlx::Row;
 
@@ -117,9 +116,7 @@ async fn main() {
         .layer(Extension(db_pool.clone()));
 
     let app = Router::new()
-        .nest("/api", api)
-        // Serve static files for the frontend
-        .nest_service("/index", ServeDir::new("../dist"));
+        .nest("/api", api);
 
     // Run the server with tokio, listening on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();

@@ -1,0 +1,82 @@
+{
+    "info": {
+        "_postman_id": "bfaad0bd-95f9-426f-9a14-55948041ef12",
+        "name": "Game encoding store",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "36271659",
+        "_collection_link": "https://jimmylinks.postman.co/workspace/jimmylinks-backend~fb3b70fc-25ee-44d0-80a7-5e2a7d9998f9/collection/36271659-bfaad0bd-95f9-426f-9a14-55948041ef12?action=share&source=collection_link&creator=36271659"
+    },
+    "item": [
+        {
+            "name": "Create",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Parse the JSON response body\r",
+                            "let jsonData = pm.response.json();\r",
+                            "\r",
+                            "// Check that the id field exists, then set it in the environment\r",
+                            "if (jsonData && jsonData.id) {\r",
+                            "    pm.environment.set(\"id\", jsonData.id);\r",
+                            "    console.log(`Environment variable \"id\" set to: ${jsonData.id}`);\r",
+                            "} else {\r",
+                            "    console.warn(\"Response JSON does not contain an 'id' field.\");\r",
+                            "}"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {}
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n    \"categories\": [\r\n        {\r\n            \"category_name\": \"cat 1\",\r\n            \"word_array\": [\"Word 1\", \"Word 2\"]\r\n        }, \r\n        {\r\n            \"category_name\": \"cat 2\",\r\n            \"word_array\": [\"Word 3\", \"Word 4\"]\r\n        }\r\n    ],\r\n    \"rows\": 2,\r\n    \"category_size\": 2\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "http://localhost:3000/api/create",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000",
+                    "path": [
+                        "api",
+                        "create"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Fetch",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:3000/api/fetch/{{id}}",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000",
+                    "path": [
+                        "api",
+                        "fetch",
+                        "{{id}}"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}

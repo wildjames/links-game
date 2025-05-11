@@ -1,8 +1,9 @@
 TODO:
-  - Allow creators to NAME the categories!
-  - Mobile layout
-  - Needs to have "lives"
   - Have a small database, that can link a short UUID to a game definition string, so that we can send minified links
+    - [x] API logic and database done.
+    - [ ] Deployment of API
+    - [ ] Integrate API into frontend (only in the buttons that get actively clicked!!)
+  - Needs to have "lives"
   - Allow public puzzles, and give a "random jimmylinks" button?
 
 Example game:
