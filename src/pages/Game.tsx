@@ -70,15 +70,30 @@ const Game = () => {
                 handleTileClick={handleTileClick}
             />
 
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
-                className="submit-button"
-                disabled={selectedTiles.length !== maxSelections}
-            >
-                Submit
-            </Button>
+            <div className="buttons-container">
+                {victory ? (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => navigate(PATHS.CREATE + '?data=' + gameDefinition)}
+                        className="submit-button"
+
+                    >
+                        Edit this game
+                    </Button>
+                ) : (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleSubmit}
+                        className="submit-button"
+                        disabled={selectedTiles.length !== maxSelections}
+                    >
+                        Submit
+                    </Button>
+                )
+                }
+            </div>
 
             <Dialog
                 open={oneAway}
