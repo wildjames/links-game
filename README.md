@@ -1,6 +1,7 @@
 TODO:
   - Have a small database, that can link a short UUID to a game definition string, so that we can send minified links
     - [x] API logic and database done.
+    - [ ] render a loading spinner whilst the backend request is going through
     - [ ] Deployment of API
     - [ ] Integrate API into frontend (only in the buttons that get actively clicked!!)
   - Needs to have "lives"

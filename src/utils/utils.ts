@@ -1,3 +1,4 @@
+import { BACKEND_PATHS } from '@constants/environment'
 import { WordCategory, GameState } from '@utils/commonTypes'
 
 // TODO: Profanity checking? Stuff like that?
@@ -100,4 +101,60 @@ export function checkGameDefinition(gameDefinition: GameState): void {
     ) {
         throw new Error("The wrong number of words were provided in a category")
     }
+}
+
+
+export function checkIfValidUUIDv4(uuid: string): boolean {
+    const uuidv4Regex = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
+    return uuidv4Regex.test(uuid.toUpperCase())
+}
+
+export async function storeGameState(
+    categories: WordCategory[],
+    rows: number,
+    categorySize: number,
+) {
+    const stateObj: GameState = {
+        categories,
+        rows,
+        categorySize,
+    }
+
+    const response = await fetch(BACKEND_PATHS.CREATE, {
+        method: 'POST',
+        body: JSON.stringify(stateObj),
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+        },
+    })
+    if (!response.ok) {
+        console.error('Failed to store game state:', response.statusText)
+        return
+    }
+    const data = await response.json()
+    console.log('Stored game state:', data)
+    return data.id
+}
+
+interface FetchGameStateResponse {
+    game_encoding: string
+}
+
+export async function fetchGameState(gameId: string) {
+    const response = await fetch(BACKEND_PATHS.FETCH.replace(':gameId', gameId), {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+        },
+    })
+    if (!response.ok) {
+        console.error('Failed to fetch game state:', response.statusText)
+        return
+    }
+
+    const data: FetchGameStateResponse = await response.json()
+    console.log('Fetched game state:', data)
+    return data
 }

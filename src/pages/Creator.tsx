@@ -25,6 +25,7 @@ const CreatorPage = () => {
         grid,
         editingTileId,
         gameDefinition,
+        gameId,
         open,
         handleTileClick,
         handleTileTextChange,
@@ -112,7 +113,7 @@ const CreatorPage = () => {
                         variant="contained"
                         color="secondary"
                         component={Link}
-                        to={`${PATHS.GAME}?data=${gameDefinition}`}
+                        to={`${PATHS.GAME}?data=${gameId || gameDefinition}`}
                         target="_blank"
                         disabled={!validGame}
                     >

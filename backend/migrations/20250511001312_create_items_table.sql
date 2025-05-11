@@ -1,4 +1,4 @@
 CREATE OR REPLACE TABLE items (
     id UUID PRIMARY KEY,
-    game_encoding VARCHAR(255) NOT NULL
+    game_encoding TEXT(8192) NOT NULL
 );

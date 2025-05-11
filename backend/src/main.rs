@@ -11,6 +11,7 @@ use axum::{
     Extension,
     Router
 };
+use tower_http::cors::CorsLayer;
 use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlPoolOptions;
 use std::env;
@@ -33,7 +34,6 @@ async fn create(
 ) -> Result<Json<Created>, (StatusCode, String)> {
     // validate the GameState
     if let Err(err_msg) = validate(&state) {
-        // 400 Bad Request with a descriptive message
         return Err((StatusCode::BAD_REQUEST, err_msg));
     }
 
@@ -44,7 +44,7 @@ async fn create(
     // insert into DB
     let id = Uuid::new_v4();
     sqlx::query("INSERT INTO items (id, game_encoding) VALUES (?, ?)")
-        .bind(id.to_string())
+        .bind(id.to_string().to_lowercase())
         .bind(&encoded)
         .execute(&db)
         .await
@@ -59,7 +59,7 @@ async fn fetch(
 ) -> Result<Json<FetchIDData>, StatusCode> {
     // run the query, propagating any DB errors as a 500
     let row_opt = sqlx::query("SELECT game_encoding FROM items WHERE id = ?")
-        .bind(id.to_string())
+        .bind(id.to_string().to_lowercase())
         .fetch_optional(&db)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -113,13 +113,14 @@ async fn main() {
     let api = Router::new()
         .route("/create", post(create))
         .route("/fetch/{id}", get(fetch))
-        .layer(Extension(db_pool.clone()));
+        .layer(Extension(db_pool.clone()))
+        .layer(CorsLayer::permissive());
 
     let app = Router::new()
         .nest("/api", api);
 
     // Run the server with tokio, listening on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();
 
     // Run
     tracing_subscriber::fmt::init(); // optional, for logging

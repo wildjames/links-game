@@ -4,7 +4,13 @@ import { Buffer } from 'buffer'
 
 import { GameGridTile, ShakeSelectedTiles } from '@components/GameGrid'
 
-import { checkGameDefinition, shuffle, validateWord } from '@utils/utils'
+import {
+    checkGameDefinition,
+    checkIfValidUUIDv4,
+    fetchGameState,
+    shuffle,
+    validateWord
+} from '@utils/utils'
 import { WordCategory, GameState } from '@utils/commonTypes'
 
 
@@ -27,40 +33,84 @@ export const useGame = () => {
 
     // On mount, parse the query string to update the game definition.
     useEffect(() => {
-        const payload = searchParams.get('data')
-        if (!payload) {
-            console.error('No data found in the URL')
-            setValidGame(false)
-            return
+        async function fetchData() {
+            const payload = searchParams.get('data')
+            if (!payload) {
+                console.error('No data found in the URL')
+                setValidGame(false)
+                return
+            }
+
+            // If the payload is a valid UUID, fetch the game state from the backend.
+            let parsedData: GameState | undefined = undefined
+            if (payload.length === 36) {
+                if (checkIfValidUUIDv4(payload)) {
+                    try {
+                        const data = await fetchGameState(payload)
+                        if (!data) {
+                            console.error('Failed to fetch game state')
+                            return
+                        }
+                        const text = Buffer.from(data.game_encoding, 'base64').toString('utf8')
+                        if (!text) {
+                            console.error('Invalid response from the server', data)
+                            return
+                        }
+                        parsedData = JSON.parse(text)
+                    } catch (err) {
+                        console.error('Failed to fetch game state:', err)
+                        return
+                    }
+                } else {
+                    // It's not possible to have a base64 encoding this short, so we don't need to check
+                    console.error('Invalid game ID:', payload)
+                    return
+                }
+            } else {
+                // If the data is not a UUID, we assume it's a base64 encoded game state
+                const text = Buffer.from(payload, 'base64').toString('utf8')
+                parsedData = JSON.parse(text)
+                if (!parsedData) {
+                    console.error('Failed to parse game state from URL')
+                    return
+                }
+            }
+
+            if (!parsedData) {
+                console.error('No game state found in the URL')
+                setValidGame(false)
+                return
+            }
+
+            setGameDefinition(payload)
+
+            try {
+                console.debug('Parsed data:', parsedData)
+
+                checkGameDefinition(parsedData) // Validates the game data
+
+                const parsedWords = parsedData.categories
+                    .flatMap(category => category.wordArray)
+                    .map(word => word.trim())
+                    .filter(word => validateWord(word))
+                shuffle(parsedWords)
+
+                setWords(parsedWords)
+                setRowsSolved([])
+                setCategories(parsedData.categories)
+
+                setRows(parsedData.rows)
+                setCols(parsedData.categorySize)
+                setMaxSelections(parsedData.categorySize)
+
+                setValidGame(true)
+            } catch (error) {
+                console.error('Error parsing game definition:', error)
+                setValidGame(false)
+            }
         }
-        setGameDefinition(payload)
 
-        try {
-            const data = Buffer.from(payload, 'base64').toString('utf-8')
-            const parsedData: GameState = JSON.parse(data)
-            console.debug('Parsed data:', parsedData)
-
-            checkGameDefinition(parsedData) // Validates the game data
-
-            const parsedWords = parsedData.categories
-                .flatMap(category => category.wordArray)
-                .map(word => word.trim())
-                .filter(word => validateWord(word))
-            shuffle(parsedWords)
-
-            setWords(parsedWords)
-            setRowsSolved([])
-            setCategories(parsedData.categories)
-
-            setRows(parsedData.rows)
-            setCols(parsedData.categorySize)
-            setMaxSelections(parsedData.categorySize)
-
-            setValidGame(true)
-        } catch (error) {
-            console.error('Error parsing game definition:', error)
-            setValidGame(false)
-        }
+        fetchData()
     }, [searchParams])
 
     useEffect(() => {
