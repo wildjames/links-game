@@ -258,6 +258,14 @@ const useEditor = () => {
         setEditingTileId(undefined)
     }
 
+    const handleGoToGame = async () => {
+        const gameId = await storeGameState(categories, rows, categorySize)
+        window.open(
+            `${window.location.origin}${PATHS.GAME}?data=${gameId ?? gameDefinition}`,
+            '_blank'
+        )
+    }
+
     return {
         rows,
         setRows,
@@ -274,6 +282,7 @@ const useEditor = () => {
         loading,
         handleCloseSnackbar,
         handleClearWords,
+        handleGoToGame,
         gameDefinition,
         gameId,
         validGame,

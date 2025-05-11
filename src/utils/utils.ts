@@ -113,7 +113,7 @@ export async function storeGameState(
     categories: WordCategory[],
     rows: number,
     categorySize: number,
-) {
+): Promise<string> {
     const stateObj: GameState = {
         categories,
         rows,
@@ -130,7 +130,7 @@ export async function storeGameState(
     })
     if (!response.ok) {
         console.error('Failed to store game state:', response.statusText)
-        return
+        throw new Error('Failed to store game state')
     }
     const data = await response.json()
     console.log('Stored game state:', data)
@@ -141,7 +141,7 @@ interface FetchGameStateResponse {
     game_encoding: string
 }
 
-export async function fetchGameState(gameId: string) {
+export async function fetchGameState(gameId: string): Promise<FetchGameStateResponse> {
     const response = await fetch(BACKEND_PATHS.FETCH.replace(':gameId', gameId), {
         method: 'GET',
         headers: {
@@ -151,7 +151,7 @@ export async function fetchGameState(gameId: string) {
     })
     if (!response.ok) {
         console.error('Failed to fetch game state:', response.statusText)
-        return
+        throw new Error('Failed to fetch game state')
     }
 
     const data: FetchGameStateResponse = await response.json()
