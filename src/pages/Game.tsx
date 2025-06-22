@@ -18,6 +18,7 @@ const Game = () => {
         rowsSolved,
         validGame,
         gameDefinition,
+        lives,
         handleTileClick,
         handleSubmit,
         handleCloseOneAway,
@@ -31,8 +32,8 @@ const Game = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        setVictory(rowsSolved.length === grid.length)
-    }, [grid.length, rowsSolved.length])
+        setVictory(rowsSolved.length === grid.length && lives > 0)
+    }, [grid.length, rowsSolved.length, lives])
 
     // Delay the victory dialog
     useEffect(() => {
@@ -63,6 +64,7 @@ const Game = () => {
     return (
         <div className="game-container">
             <h1 className="game-title">Jimmylinks</h1>
+            <div className="lives-display">Lives: {lives}</div>
             <GameGrid
                 wordGrid={grid}
                 selectedTiles={selectedTiles}
