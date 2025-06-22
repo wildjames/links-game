@@ -27,6 +27,7 @@ export const useGame = () => {
     const [rowsSolved, setRowsSolved] = useState<string[]>([])
     const [oneAway, setOneAway] = useState(false)
     const [validGame, setValidGame] = useState(true)
+    const [lives, setLives] = useState(0)
 
     const [searchParams] = useSearchParams()
     const [gameDefinition, setGameDefinition] = useState<string | null>(null)
@@ -102,6 +103,7 @@ export const useGame = () => {
                 setRows(parsedData.rows)
                 setCols(parsedData.categorySize)
                 setMaxSelections(parsedData.categorySize)
+                setLives(parsedData.rows)
 
                 setValidGame(true)
             } catch (error) {
@@ -214,8 +216,28 @@ export const useGame = () => {
             }
 
             ShakeSelectedTiles()
+
+            setLives(prevLives => {
+                const newLives = prevLives - 1
+                if (newLives <= 0) {
+                    setTimeout(revealAllCategories, 1000)
+                }
+                return newLives
+            })
         }
     }
+
+    const revealAllCategories = useCallback(() => {
+        const newGrid = categories.map((cat, rowIndex) =>
+            cat.wordArray.map((word, colIndex) => ({
+                id: `${rowIndex}-${colIndex}`,
+                word,
+            }))
+        )
+        setGrid(newGrid)
+        setRowsSolved(categories.map(cat => cat.categoryName))
+        setSelectedTiles([])
+    }, [categories])
 
     const handleCloseOneAway = useCallback(() => {
         setOneAway(false)
@@ -231,6 +253,7 @@ export const useGame = () => {
         rowsSolved,
         validGame,
         gameDefinition,
+        lives,
         handleTileClick,
         handleSubmit,
         handleCloseOneAway,
